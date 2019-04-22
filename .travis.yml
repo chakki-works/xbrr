@@ -6,9 +6,9 @@ python:
 before_install:
   - python --version
 init:
-    pip install pipenv
-    pipenv install --dev
+  - pip install pipenv
+  - pipenv install --dev
 test:
-    pipenv run pytest --cov=edinet tests/
+  - pipenv run pytest --cov=edinet tests/
 after_success:
-  codecov
+  - codecov
