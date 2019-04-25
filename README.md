@@ -1,5 +1,6 @@
 # edinet-python
 
+[![PyPI version](https://badge.fury.io/py/edinet-python.svg)](https://badge.fury.io/py/edinet-python)
 [![Build Status](https://travis-ci.org/chakki-works/edinet-python.svg?branch=master)](https://travis-ci.org/chakki-works/edinet-python)
 [![codecov](https://codecov.io/gh/chakki-works/edinet-python/branch/master/graph/badge.svg)](https://codecov.io/gh/chakki-works/edinet-python)
 
