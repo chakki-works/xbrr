@@ -9,7 +9,7 @@ class Document():
                  edinet_code="E10001",
                  sec_code="10000",
                  jcn="0000000000001",
-                 file_name="xx株式会社",
+                 filer_name="xx株式会社",
                  fund_code="G00001",
                  ordinance_code="000",
                  form_code="000000",
@@ -37,7 +37,7 @@ class Document():
         self.edinet_code = edinet_code
         self.sec_code = sec_code
         self.jcn = jcn
-        self.file_name = file_name
+        self.filer_name = filer_name
         self.fund_code = fund_code
         self.ordinance_code = ordinance_code
         self.form_code = form_code
@@ -78,7 +78,7 @@ class Document():
             edinet_code=body["edinetCode"],
             sec_code=body["secCode"],
             jcn=body["JCN"],
-            file_name=body["filerName"],
+            filer_name=body["filerName"],
             fund_code=body["fundCode"],
             ordinance_code=body["ordinanceCode"],
             form_code=body["formCode"],
