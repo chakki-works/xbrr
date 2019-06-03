@@ -1,4 +1,5 @@
-from edinet.facade import Facade
+from edinet.facade import APIFacade, ParserFacade
 
 
-api = Facade()
+api = APIFacade()
+parse = ParserFacade.parse

@@ -2,26 +2,6 @@ import re
 import unicodedata
 
 
-class ItemExtractor():
-
-    def __init__(self, name, context_matcher, value_extractor):
-        self.name = name
-        self.context_matcher = context_matcher
-        self.value_extractor = value_extractor
-
-    def extract(self, element):
-        context = self.context_matcher.match(element)
-        value = ""
-        if context:
-            value = self.value_extractor(context)
-
-        return {
-            "name": self.name,
-            "value": value,
-            "context": context
-        }
-
-
 class ContextMatcher():
 
     def match(self, element):
@@ -69,7 +49,6 @@ class TextValueExtractor():
 
         if match:
             matched = match[0]
-            print(matched)
             value = matched.replace(self.prefix, "").replace(self.suffix, "")
             value = value.strip()
             value = unicodedata.normalize("NFKC", value)
