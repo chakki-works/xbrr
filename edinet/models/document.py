@@ -30,7 +30,7 @@ class Document():
                  has_xbrl=False,
                  has_pdf=False,
                  has_attachment=False,
-                 include_english=False
+                 has_english_doc=False
                  ):
         self.sequential_no = sequential_no
         self.document_id = document_id
@@ -58,7 +58,7 @@ class Document():
         self.has_xbrl = has_xbrl
         self.has_pdf = has_pdf
         self.has_attachment = has_attachment
-        self.include_english = include_english
+        self.has_english_doc = has_english_doc
 
     @classmethod
     def create(cls, body: dict) -> "Document":
@@ -99,7 +99,7 @@ class Document():
             has_xbrl=to_bool(body["xbrlFlag"]),
             has_pdf=to_bool(body["pdfFlag"]),
             has_attachment=to_bool(body["attachDocFlag"]),
-            include_english=to_bool(body["englishDocFlag"])
+            has_english_doc=to_bool(body["englishDocFlag"])
         )
 
         return instance
