@@ -7,7 +7,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="edinet-python",
-    version="0.1.5",
+    version="0.1.6",
     description="EDINET API Client for Python.",
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -24,6 +24,8 @@ setup(
         ],
     url="https://github.com/chakki-works/edinet-python",
     install_requires=[
-        "requests>=2.21.0"
+        "requests>=2.21.0",
+        "beautifulsoup4>=4.7.1",
+        "lxml>=4.3.3"
     ],
 )
