@@ -63,7 +63,7 @@ class DocumentClient(BaseClient):
                 save_path = Path(save_dir).joinpath(_file_name)
             else:
                 tmpf = tempfile.NamedTemporaryFile(
-                        suffix="__" + _file_name, delete=False)
+                        prefix=_file_name + "__", delete=False)
                 save_path = Path(tmpf.name)
 
             with save_path.open(mode="wb") as f:

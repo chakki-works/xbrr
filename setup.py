@@ -7,7 +7,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="edinet-python",
-    version="0.1.6",
+    version="0.1.7",
     description="EDINET API Client for Python.",
     long_description=readme,
     long_description_content_type="text/markdown",
