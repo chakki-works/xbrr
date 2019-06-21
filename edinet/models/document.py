@@ -123,8 +123,8 @@ class Document():
         client = DocumentClient()
         return client.get_pdf(self.document_id, save_dir, file_name)
 
-    def get_xbrl(self, lang: str = "ja",
-                 save_dir: str = "", file_name: str = ""):
+    def get_xbrl(self, save_dir: str = "", file_name: str = "",
+                 lang: str = "ja",):
         from edinet.client.document_client import DocumentClient
         client = DocumentClient()
-        return client.get_xbrl(self.document_id, lang, save_dir, file_name)
+        return client.get_xbrl(self.document_id, save_dir, file_name, lang)

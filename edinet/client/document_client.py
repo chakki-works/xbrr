@@ -94,16 +94,16 @@ class DocumentClient(BaseClient):
         return path
 
     def get_xbrl(self, document_id: str,
-                 lang: str = "ja", save_dir: str = "", file_name: str = ""):
+                 save_dir: str = "", file_name: str = "", lang: str = "ja"):
         """Get XBRL file.
 
         Arguments:
             document_id {str} -- Document id of EDINET.
 
         Keyword Arguments:
-            lang {str} -- Language of document (default: {"ja"})
             save_dir {str} -- Directory to save file (default: {""}).
             file_name {str} -- Filename of the document (default: {""}).
+            lang {str} -- Language of document (default: {"ja"})
 
         Returns:
             str -- Saved file path.
