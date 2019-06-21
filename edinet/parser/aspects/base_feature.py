@@ -1,3 +1,13 @@
+import dataclasses
+
+
+@dataclasses.dataclass
+class Value():
+    value: any
+    unit: str
+    ground: str
+
+
 class BaseFeature():
 
     def __init__(self, xbrl_file):
@@ -8,10 +18,4 @@ class BaseFeature():
         if property is None:
             raise Exception("{} does not exist as property.".format(name))
         else:
-            value, ground = property
-            result = {}
-            result[name] = {
-                "value": value,
-                "ground": ground
-            }
-            return result
+            return property

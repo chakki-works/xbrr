@@ -1,5 +1,5 @@
 import edinet.parser.item_extractor as ie
-from edinet.parser.element.base_feature import BaseFeature
+from edinet.parser.aspects.base_feature import BaseFeature, Value
 
 
 class ExecutiveState(BaseFeature):
@@ -12,16 +12,14 @@ class ExecutiveState(BaseFeature):
     @property
     def number_of_executives(self):
         numbers, ground = self._extract_number_of_executives()
-        return numbers["total"], ground
+        value = Value(value=numbers["total"], unit="CNT", ground=ground)
+        return value
 
     @property
-    def percentage_of_female_executives(self):
+    def number_of_female_executives(self):
         numbers, ground = self._extract_number_of_executives()
-        value = 0.0
-        if numbers["female"] > 0:
-            value = numbers["female"] / numbers["total"]
-
-        return value, ground
+        value = Value(value=numbers["female"], unit="CNT", ground=ground)
+        return value
 
     def _extract_number_of_executives(self):
         matcher = ie.TextContextMatcher("^(男性).+(名).+(女性).+(名)")

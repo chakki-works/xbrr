@@ -26,13 +26,13 @@ class APIFacade():
 class ParserFacade():
 
     @classmethod
-    def parse(cls, xbrl_path, element_name, feature_name, metadata=()):
+    def parse(cls, xbrl_path, aspect, feature):
         xbrl_file = XBRLFile(xbrl_path)
         imports = (
             "edinet",
             "parser",
-            "element",
-            element_name
+            "aspects",
+            aspect
         )
 
         _class = None
@@ -43,20 +43,13 @@ class ParserFacade():
                 components = snake_str.split("_")
                 return "".join(x.title() for x in components)
 
-            _class_name = to_camel(element_name)
+            _class_name = to_camel(aspect)
             _class = getattr(module, _class_name)
 
         except Exception as ex:
-            raise Exception(f"Can't load class that matches {element_name} \n {ex}.")
+            raise Exception(f"Can't load class that matches {aspect} \n {ex}.")
 
         instance = _class(xbrl_file)
-        feature = instance.get(feature_name)
+        feature = instance.get(feature)
 
-        _data = {}
-        if len(metadata) > 0:
-            _data = metadata
-
-        for k in feature:
-            _data[k] = feature[k]
-
-        return _data
+        return feature

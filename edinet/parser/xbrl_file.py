@@ -28,6 +28,6 @@ class XBRLFile():
         return XBRLDocument(element)
 
     def get_executive_state(self):
-        from edinet.parser.element.executive_state import ExecutiveStateParser
+        from edinet.parser.aspects.executive_state import ExecutiveStateParser
         parser = ExecutiveStateParser(self)
         return parser.parse()
