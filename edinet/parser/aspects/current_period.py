@@ -16,7 +16,6 @@ class CurrentPeriod(BaseFeature):
         text = self._year.text.strip()
         date = datetime.strptime(text, "%Y-%m-%d")
         value = Value(value=date.year, unit="NUM", ground=text)
-        print(value)
         return value
 
     @property
