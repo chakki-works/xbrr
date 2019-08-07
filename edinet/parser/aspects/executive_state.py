@@ -12,13 +12,13 @@ class ExecutiveState(BaseFeature):
     @property
     def number_of_executives(self):
         numbers, ground = self._extract_number_of_executives()
-        value = Value(value=numbers["total"], unit="CNT", ground=ground)
+        value = Value(value=numbers["total"], unit="NUM", ground=ground)
         return value
 
     @property
     def number_of_female_executives(self):
         numbers, ground = self._extract_number_of_executives()
-        value = Value(value=numbers["female"], unit="CNT", ground=ground)
+        value = Value(value=numbers["female"], unit="NUM", ground=ground)
         return value
 
     def _extract_number_of_executives(self):

@@ -1,11 +1,12 @@
-import dataclasses
-
-
-@dataclasses.dataclass
 class Value():
-    value: any
-    unit: str
-    ground: str
+
+    def __init__(self, value, unit, ground):
+        self.value = value
+        self.unit = unit
+        self.ground = ground
+
+    def __str__(self):
+        return f"(Value: {self.value}, Unit: {self.unit}, Ground: {self.ground})"
 
 
 class BaseFeature():
