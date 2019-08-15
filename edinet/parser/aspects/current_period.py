@@ -21,5 +21,7 @@ class CurrentPeriod(BaseFeature):
     @property
     def fiscal_period_type(self):
         text = self._kind.text.strip()
+        if len(text) > 2:
+            text = text[:2]
         value = Value(value=text, unit="CAT", ground=text)
         return value
