@@ -41,7 +41,7 @@ print(f"Number of documents is {metadata.count}")
 
 ```
 
-### Get document by document id
+#### Get document by document id
 
 ```py
 from pathlib import Path
@@ -52,7 +52,7 @@ xbrl_path = edinet.api.document.get_xbrl("S100FGR9", save_dir=Path.cwd())
 pdf_path = edinet.api.document.get_pdf("S100FGR9", save_dir=Path.cwd())
 ```
 
-### XBRL Parse
+### Extract contents from XBRL
 
 Following aspects are supported.
 
