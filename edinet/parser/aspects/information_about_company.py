@@ -3,7 +3,7 @@ from edinet.parser.xbrl_parser import XBRLParser
 
 class InformationAboutCompany(XBRLParser):
     TAGS = {
-        "shareholders": "ShareholdingByShareholderCategoryTextBlock",
+        "shareholders": "jpcrp_cor:ShareholdingByShareholderCategoryTextBlock",
         "dividend_policy": "jpcrp_cor:DividendPolicyTextBlock",
         "directors": "jpcrp_cor:InformationAboutOfficersTextBlock",
         "corporate_governance": "jpcrp_cor:ExplanationAboutCorporateGovernanceTextBlock"
