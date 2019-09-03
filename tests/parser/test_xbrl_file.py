@@ -5,18 +5,18 @@ from edinet.parser.xbrl_file import XBRLFile
 
 class TestXBRLFile(unittest.TestCase):
 
-    def test_get_value(self):
+    def test_find(self):
         path = os.path.join(os.path.dirname(__file__),
                             "../data/test_example_1.xbrl")
         xbrl = XBRLFile(path)
-        value = xbrl.get_value("jpdei_cor:EDINETCodeDEI")
-        self.assertTrue(value)
-        self.assertEqual(value.text, "E05739")
+        element = xbrl.find("jpdei_cor:EDINETCodeDEI")
+        self.assertEqual(element.text, "E05739")
 
-    def test_get_document(self):
+    def test_to_html(self):
         path = os.path.join(os.path.dirname(__file__),
                             "../data/test_example_1.xbrl")
         xbrl = XBRLFile(path)
-        document = xbrl.get_document("jpcrp_cor:InformationAboutOfficersTextBlock")
+        tag = "jpcrp_cor:InformationAboutOfficersTextBlock"
+        html = xbrl.find(tag).to_html()
 
-        self.assertTrue(document.html)
+        self.assertTrue(html)

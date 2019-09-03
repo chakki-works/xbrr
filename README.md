@@ -54,7 +54,7 @@ pdf_path = edinet.api.document.get_pdf("S100FGR9", save_dir=Path.cwd())
 
 ### Extract contents from XBRL
 
-Following aspects are supported.
+Following aspects are supported. The format is based on `三号様式` that is commonly used for annual report.
 
 0. 文書情報: `Metadata`
     1. 会計年度: `fiscal_year`
@@ -78,7 +78,7 @@ Following aspects are supported.
     4. 賃貸資産
     5. 自社用資産
 4. 提出会社の状況: `InformationAboutCompany`
-    1. 株式等の状況: `shares`
+    1. 株式等の状況:
         * 所有者別状況: `shareholders`
     2. 配当政策: `dividend_policy`
     3. 役員の状況: `directors`
