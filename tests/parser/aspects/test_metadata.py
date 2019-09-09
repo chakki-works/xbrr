@@ -8,7 +8,7 @@ class TestMetadata(unittest.TestCase):
 
     def get_xbrl(self):
         path = os.path.join(os.path.dirname(__file__),
-                            "../../data/test_example_1.xbrl")
+                            "../../data/xbrl2019.xbrl")
         xbrl = XBRLFile(path)
 
         return xbrl

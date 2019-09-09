@@ -58,14 +58,21 @@ class XBRLParser():
 
         return value
 
-    def get_document_feature(self, tag):
-        html = XBRLElement(self._element).find(self.TAGS[tag])
+    def get_document_feature(self, key):
+        html = XBRLElement(self._element).find(self.TAGS[key])
+        if html._element is None:
+            without_ns = self.TAGS[key].split(":")[1]
+            html = XBRLElement(self._element).find(without_ns)
+        feature = self._html_to_feature(html)
+        return feature
+
+    def _html_to_feature(self, html):
         if html._element:
             html = html.to_html()
             raw = html._element.prettify()
             value = self.normalize(html.text)
             feature = XBRLFeature.document(value=value, ground=raw)
         else:
-            feature = XBRLFeature.document(value="", ground="")
+            feature = None
 
         return feature

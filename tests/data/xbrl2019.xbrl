@@ -36593,10 +36593,10 @@ MSIP CLIENT SECURITIES
 &lt;p style="text-align: left"&gt; &lt;/p&gt;
 &lt;p style="text-align: left"&gt; &lt;/p&gt;
 </jpcrp_cor:OtherReferenceInformationTextBlock>
-  <jpcrp_cor:InformationAboutCompanyWhichProvidesGuaranteeToReportingCompanyNATextBlock contextRef="FilingDateInstant">
+  <jpcrp_cor:CompanyInformationWhichProvidesGuaranteeToReportingCompanyNATextBlock contextRef="FilingDateInstant">
 &lt;h1&gt;第二部【提出会社の保証会社等の情報】&lt;/h1&gt;
 &lt;p style="margin-left: 60px; margin-bottom: 18px; text-align: left"&gt;　該当事項はありません。&lt;/p&gt;
-</jpcrp_cor:InformationAboutCompanyWhichProvidesGuaranteeToReportingCompanyNATextBlock>
+</jpcrp_cor:CompanyInformationWhichProvidesGuaranteeToReportingCompanyNATextBlock>
   <link:footnoteLink xlink:role="http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_ConsolidatedBalanceSheet" xlink:type="extended">
     <link:footnote xlink:label="footnote" xlink:role="http://disclosure.edinet-fsa.go.jp/role/jppfs/role/NotesNumber" xlink:type="resource" xml:lang="ja">※７</link:footnote>
     <link:loc xlink:label="fact" xlink:type="locator" xlink:href="#IdFact1467645258"/>

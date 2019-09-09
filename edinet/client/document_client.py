@@ -121,6 +121,7 @@ class DocumentClient(BaseClient):
 
         path = self.get(document_id, response_type, save_dir, file_name)
 
+        xbrl_path = ""
         with ZipFile(path, "r") as zip:
             files = zip.namelist()
             xbrl_file = ""
@@ -134,7 +135,9 @@ class DocumentClient(BaseClient):
                 xbrl_path = path.with_suffix(".xbrl")
                 with xbrl_path.open("wb") as f:
                     f.write(zip.read(xbrl_file))
-                path.unlink()
-                path = xbrl_path
+
+        if xbrl_path:
+            path.unlink()
+            path = xbrl_path
 
         return path

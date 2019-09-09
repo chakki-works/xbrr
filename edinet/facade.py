@@ -26,8 +26,8 @@ class APIFacade():
 class ParserFacade():
 
     @classmethod
-    def parse(cls, xbrl_path, aspect, feature):
-        xbrl_file = XBRLFile(xbrl_path)
+    def parse(cls, xbrl_path, aspect, property):
+        xbrl = XBRLFile(xbrl_path)
         imports = (
             "edinet",
             "parser",
@@ -49,7 +49,7 @@ class ParserFacade():
         except Exception as ex:
             raise Exception(f"Can't load class that matches {aspect} \n {ex}.")
 
-        instance = _class(xbrl_file)
-        feature = instance.get(feature)
+        parser = xbrl.parse_by(_class)
+        feature = getattr(parser, property)
 
         return feature
