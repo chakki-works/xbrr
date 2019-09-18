@@ -17,9 +17,9 @@
 pip install edinet-python
 ```
 
-### Download the documents from [EDINET](http://disclosure.edinet-fsa.go.jp/).
+### 1. Download the documents from [EDINET](http://disclosure.edinet-fsa.go.jp/).
 
-#### Get document list of specific day
+#### 1.1 Get document list of specific day
 
 ```py
 import edinet
@@ -41,7 +41,7 @@ print(f"Number of documents is {metadata.count}")
 
 ```
 
-#### Get document by document id
+#### 1.2 Get document by document id
 
 ```py
 from pathlib import Path
@@ -52,7 +52,16 @@ xbrl_path = edinet.api.document.get_xbrl("S100FGR9", save_dir=Path.cwd())
 pdf_path = edinet.api.document.get_pdf("S100FGR9", save_dir=Path.cwd())
 ```
 
-### Extract contents from XBRL
+### 2. Extract contents from XBRL
+
+```py
+from edinet.parser.xbrl_file import XBRLFile
+from edinet.parser.aspects.business import Business
+
+
+xbrl = XBRLFile("path/to/xbrl/file")
+content = xbrl.parse_by(Business).policy_environment_issue_etc
+```
 
 Following aspects are supported. The format is based on `三号様式` that is commonly used for annual report.
 
