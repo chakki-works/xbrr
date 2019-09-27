@@ -12,3 +12,11 @@ script:
   - pipenv run pytest --cov=edinet tests/
 after_success:
   - codecov
+deploy:
+  provider: pypi
+  user: icoxfog417
+  password:
+    secure: ROJVDF7ifE4OpuyCHSGRbpjZGCvPuRm1JHcghFFgKZMLgusGDIiYsm17vwFwMO+TyCNRGEqhhWXDtcBgPSc6WV2+PR38prp5Iai7OgOo5zXHGsRrrnk3nVCUrjQJKbeg42B7ZPcOqLcJIHNbbsghyZj/6R9Z5y9vhSMLR3Oe6AwoxJujbXuPMvDi5UrQmQg90fy4HzJC2sVLIBOiJxMY8kS9nUV2nwMD6UI/QS9ffqvy/Fd6TPNaG+NwelsZkDvpGs6ORtKd1vJLg+w3GdxdU/x9G830ctrYO5GpmN5zSuUxa9tUkyZCG0M3sqN/1b5t6KOQ3t0QcA5lyNBZocVGU57HP8TdoAhmBvbpV6j7XsEyLd7qp8mB9REBFLzilZEqJ096JdhzORxp3rc9mfdYbmrKfo+Lo0SSfrWjHnAM/TA1tGiWS3YLjri7wyUMeIV7wElP4E0sFrl/kOFzLGFQmuIr8rfhmXa5C9iAGGDVkSojmsyByzBoiwp1tO83TPH+f3r2WmGks3zh7WHhVbfc2/wIuebtW5u2JChDG3nUN9S69Bpr/zQRf4USHzuP7hn2QdYoilcGMwxViqfST5M6XvsXfHFQMc5OuvhpkSuF9sAIOVP9rVxAIKwjoA/8k8flGDLo004aCB0k0Qk/X1YXjeQvCBQv/Y/K1DXpmShiOxc=
+  on:
+    tags: true
+    python: "3.7"
