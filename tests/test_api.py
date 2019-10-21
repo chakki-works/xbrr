@@ -13,7 +13,7 @@ class TestAPI(unittest.TestCase):
         self.assertGreater(metadata.count, 0)
 
     @delay
-    def ztest_api_document(self):
+    def test_api_document(self):
         _dir = os.path.dirname(__file__)
         path = edinet.api.document.get_pdf("S100FGR9", save_dir=_dir)
         self.assertTrue(os.path.exists(path))

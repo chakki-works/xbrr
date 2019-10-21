@@ -1,7 +1,7 @@
 import os
 import re
 import unittest
-from edinet.parser.xbrl_file import XBRLFile
+from edinet.xbrl_file import XBRLFile
 from edinet.parser.xbrl_parser import XBRLParser
 
 

@@ -2,7 +2,7 @@ import importlib
 from edinet.client.document_list_client import MetaDataClient
 from edinet.client.document_list_client import DocumentListClient
 from edinet.client.document_client import DocumentClient
-from edinet.parser.xbrl_file import XBRLFile
+from edinet.xbrl_file import XBRLFile
 
 
 class APIFacade():

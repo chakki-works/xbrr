@@ -1,7 +1,7 @@
 import re
 import unicodedata
-from edinet.parser.xbrl_file import XBRLElement
-from edinet.parser.xbrl_feature import XBRLFeature
+from edinet.xbrl_file import XBRLElement
+from edinet.xbrl_feature import XBRLFeature
 
 
 class XBRLParser():

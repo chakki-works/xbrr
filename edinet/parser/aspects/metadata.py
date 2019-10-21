@@ -1,6 +1,6 @@
 from datetime import datetime
 from edinet.parser.xbrl_parser import XBRLParser
-from edinet.parser.xbrl_feature import XBRLFeature
+from edinet.xbrl_feature import XBRLFeature
 
 
 class Metadata(XBRLParser):
