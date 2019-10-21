@@ -29,7 +29,7 @@ setup(
         "beautifulsoup4>=4.7.1",
         "lxml>=4.3.3"
     ],
-    extras_require=[
-        "data", "pandas>=0.25.1"
-    ]
+    extras_require={
+        "statements": ["pandas>=0.25.1"]
+    }
 )
