@@ -42,7 +42,7 @@ class XBRLDir():
         if as_xml:
             xml = None
             with open(path, encoding="utf-8") as f:
-                xml = BeautifulSoup(f, "lxml-xml")
+                xml = BeautifulSoup(f.read(), "lxml-xml")
             return xml
         else:
             return path

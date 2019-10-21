@@ -30,6 +30,7 @@ class TestXBRLFile(unittest.TestCase):
         xbrl_dir = XBRLDir(file_path)
 
         self.assertTrue(isinstance(xbrl_dir.xbrl, XBRLFile))
+        print(xbrl_dir.xsd.prettify())
         self.assertGreater(len(xbrl_dir.xsd.find_all("element")), 0)
         self.assertGreater(len(xbrl_dir.cal.find_all("calculationLink")), 0)
         self.assertGreater(len(xbrl_dir.def_.find_all("definitionArc")), 0)
