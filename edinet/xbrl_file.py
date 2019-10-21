@@ -41,8 +41,8 @@ class XBRLDir():
 
         if as_xml:
             xml = None
-            with open(path, encoding="utf-8") as f:
-                xml = BeautifulSoup(f.read(), "lxml-xml")
+            with open(path, encoding="utf-8-sig") as f:
+                xml = BeautifulSoup(f, "lxml-xml")
             return xml
         else:
             return path
@@ -90,7 +90,7 @@ class XBRLFile():
         if not os.path.exists(self.path):
             raise FileNotFoundError()
 
-        with open(self.path, encoding="utf-8") as f:
+        with open(self.path, encoding="utf-8-sig") as f:
             self._root = BeautifulSoup(f, "lxml-xml")
 
     @property
