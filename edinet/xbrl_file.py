@@ -33,19 +33,22 @@ class XBRLDir():
                 hit = True
             elif kind == "pre" and path.endswith("_pre.xml"):
                 hit = True
-            elif kind == "man" and f.startswith("mainfest_"):
+            elif kind == "man" and f.startswith("manifest_") and f.endswith(".xml"):
                 hit = True
 
             if hit:
                 break
 
-        if as_xml:
-            xml = None
-            with open(path, encoding="utf-8-sig") as f:
-                xml = BeautifulSoup(f, "lxml-xml")
-            return xml
+        if hit:
+            if as_xml:
+                xml = None
+                with open(path, encoding="utf-8-sig") as f:
+                    xml = BeautifulSoup(f, "lxml-xml")
+                return xml
+            else:
+                return path
         else:
-            return path
+            return None
 
     @property
     def xbrl(self):

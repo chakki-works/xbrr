@@ -36,7 +36,6 @@ class TestXBRLFile(unittest.TestCase):
         self.assertGreater(len(xbrl_dir.lab.find_all("labelLink")), 0)
         self.assertGreater(len(xbrl_dir.lab_en.find_all("labelLink")), 0)
         self.assertGreater(len(xbrl_dir.pre.find_all("presentationLink")), 0)
-        print(xbrl_dir.man.prettify())
         self.assertTrue(xbrl_dir.man.find("manifest"))
 
         xbrl_dir.delete()
