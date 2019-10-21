@@ -94,7 +94,8 @@ class DocumentClient(BaseClient):
         return path
 
     def get_xbrl(self, document_id: str,
-                 save_dir: str = "", file_name: str = "", lang: str = "ja"):
+                 save_dir: str = "", file_name: str = "", lang: str = "ja",
+                 expand_level: str = "file"):
         """Get XBRL file.
 
         Arguments:
@@ -103,7 +104,11 @@ class DocumentClient(BaseClient):
         Keyword Arguments:
             save_dir {str} -- Directory to save file (default: {""}).
             file_name {str} -- Filename of the document (default: {""}).
-            lang {str} -- Language of document (default: {"ja"})
+            lang {str} -- Language of document (default: {"ja"}).
+            extract_level {int} -- File expansion level
+                                   ''    : Not expand, 
+                                   'dir' : Expand zip,
+                                   'file': Extract XBRL file from zip.
 
         Returns:
             str -- Saved file path.
@@ -120,6 +125,16 @@ class DocumentClient(BaseClient):
             raise Exception(f"Language {lang} is not supported on EDINET.")
 
         path = self.get(document_id, response_type, save_dir, file_name)
+
+        if expand_level is None or not expand_level or\
+           expand_level not in ("dir", "file"):
+            return path
+        elif expand_level == "dir":
+            xbrl_dir = path.parent.joinpath(document_id)
+            with ZipFile(path, "r") as zip:
+                zip.extractall(path=xbrl_dir)
+            path.unlink()
+            return xbrl_dir
 
         xbrl_path = ""
         with ZipFile(path, "r") as zip:
