@@ -97,12 +97,24 @@ class XBRLFile():
             self._root = BeautifulSoup(f, "lxml-xml")
 
     @property
+    def root(self):
+        return self._root
+
+    @property
     def text(self):
         return self._root.text
 
-    def find(self, tag):
-        tag_element = self._root.find(tag)
+    def find(self, tag, attrs={}, recursive=True, text=None,
+             **kwargs):
+        tag_element = self._root.find(tag, attrs, recursive, text, **kwargs)
         return XBRLElement(tag_element)
+
+    def find_all(self, tag, attrs={}, recursive=True, text=None,
+                 limit=None, **kwargs):
+        tag_elements = self._root.find_all(
+                        tag, attrs, recursive, text, limit, **kwargs)
+
+        return [XBRLElement(e) for e in tag_elements]
 
     def parse_by(self, parser_cls):
         return parser_cls(self._root)
@@ -114,12 +126,28 @@ class XBRLElement():
         self._element = element
 
     @property
+    def element(self):
+        return self._element
+
+    @property
     def text(self):
         return self._element.text
 
-    def find(self, tag):
-        tag_element = self._element.find(tag)
+    def get(self, attribute):
+        return self._element[attribute]
+
+    def find(self, tag, attrs={}, recursive=True, text=None,
+             **kwargs):
+        tag_element = self._element.find(
+                        tag, attrs, recursive, text, **kwargs)
         return XBRLElement(tag_element)
+
+    def find_all(self, tag, attrs={}, recursive=True, text=None,
+                 limit=None, **kwargs):
+        tag_elements = self._element.find_all(
+                        tag, attrs, recursive, text, limit, **kwargs)
+
+        return [XBRLElement(e) for e in tag_elements]
 
     def to_html(self):
         _text = self._element.text.strip()
