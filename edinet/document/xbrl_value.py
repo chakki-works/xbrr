@@ -1,8 +1,8 @@
-class XBRLFeature():
+class XBRLValue():
 
-    def __init__(self, value, unit, ground=""):
+    def __init__(self, value, data_type, ground=""):
         self.value = value
-        self.unit = unit
+        self.data_type = data_type
         self.ground = ground
 
     @classmethod
@@ -18,12 +18,12 @@ class XBRLFeature():
         return cls(value, "CAT", ground)
 
     @classmethod
-    def text(cls, value, ground=""):
-        return cls(value, "TXT", ground)
+    def string(cls, value, ground=""):
+        return cls(value, "STR", ground)
 
     @classmethod
-    def document(cls, value, ground=""):
-        return cls(value, "DOC", ground)
+    def text(cls, value, ground=""):
+        return cls(value, "TXT", ground)
 
     @classmethod
     def date(cls, value, ground=""):

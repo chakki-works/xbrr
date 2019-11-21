@@ -1,7 +1,7 @@
-from edinet.parser.xbrl_parser import XBRLParser
+from edinet.parser.base_aspect import BaseAspect
 
 
-class Company(XBRLParser):
+class Company(BaseAspect):
     TAGS = {
         "history": "jpcrp_cor:CompanyHistoryTextBlock",
         "business_description": "jpcrp_cor:DescriptionOfBusinessTextBlock",
@@ -9,22 +9,22 @@ class Company(XBRLParser):
         "employees": "jpcrp_cor:InformationAboutEmployeesTextBlock"
     }
 
-    def __init__(self, element):
-        super().__init__(element)
+    def __init__(self, reader):
+        super().__init__(reader)
         self._retrieved = {}
 
     @property
     def history(self):
-        return self.get_document_feature("history")
+        return self.get_text_value("history")
 
     @property
     def business_description(self):
-        return self.get_document_feature("business_description")
+        return self.get_text_value("business_description")
 
     @property
     def affiliated_entities(self):
-        return self.get_document_feature("affiliated_entities")
+        return self.get_text_value("affiliated_entities")
 
     @property
     def employees(self):
-        return self.get_document_feature("employees")
+        return self.get_text_value("employees")

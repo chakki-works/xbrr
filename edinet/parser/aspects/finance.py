@@ -1,25 +1,25 @@
-from edinet.parser.xbrl_parser import XBRLParser
+from edinet.parser.base_aspect import BaseAspect
 
 
-class Finance(XBRLParser):
+class Finance(BaseAspect):
     TAGS = {
         "voluntary_accounting_policy_change": "jpcrp_cor:NotesVoluntaryChangesInAccountingPoliciesConsolidatedFinancialStatementsTextBlock",
         "segment_information": "jpcrp_cor:NotesSegmentInformationEtcConsolidatedFinancialStatementsTextBlock",
         "real_estate_for_lease": "jpcrp_cor:NotesRealEstateForLeaseEtcFinancialStatementsTextBlock"
     }
 
-    def __init__(self, element):
-        super().__init__(element)
+    def __init__(self, reader):
+        super().__init__(reader)
         self._retrieved = {}
 
     @property
     def voluntary_accounting_policy_change(self):
-        return self.get_document_feature("voluntary_accounting_policy_change")
+        return self.get_text_value("voluntary_accounting_policy_change")
 
     @property
     def segment_information(self):
-        return self.get_document_feature("segment_information")
+        return self.get_text_value("segment_information")
 
     @property
     def real_estate_for_lease(self):
-        return self.get_document_feature("real_estate_for_lease")
+        return self.get_text_value("real_estate_for_lease")

@@ -1,7 +1,7 @@
 import os
 import unittest
 from edinet.client.document_client import DocumentClient
-from edinet.xbrl_file import XBRLFile, XBRLDir
+from edinet.document.xbrl_reader import XBRLReader, XBRLDir
 
 
 class TestXBRLFile(unittest.TestCase):
@@ -9,16 +9,16 @@ class TestXBRLFile(unittest.TestCase):
     def test_find(self):
         path = os.path.join(os.path.dirname(__file__),
                             "./data/xbrl2019.xbrl")
-        xbrl = XBRLFile(path)
+        xbrl = XBRLReader(path)
         element = xbrl.find("jpdei_cor:EDINETCodeDEI")
         self.assertEqual(element.text, "E05739")
 
     def test_to_html(self):
         path = os.path.join(os.path.dirname(__file__),
                             "./data/xbrl2019.xbrl")
-        xbrl = XBRLFile(path)
+        xbrl = XBRLReader(path)
         tag = "jpcrp_cor:InformationAboutOfficersTextBlock"
-        html = xbrl.find(tag).to_html()
+        html = xbrl.find(tag).html
 
         self.assertTrue(html)
 
@@ -29,7 +29,6 @@ class TestXBRLFile(unittest.TestCase):
                                     expand_level="dir")
         xbrl_dir = XBRLDir(file_path)
 
-        self.assertTrue(isinstance(xbrl_dir.xbrl, XBRLFile))
         self.assertGreater(len(xbrl_dir.xsd.find_all("element")), 0)
         self.assertGreater(len(xbrl_dir.cal.find_all("calculationLink")), 0)
         self.assertGreater(len(xbrl_dir.def_.find_all("definitionArc")), 0)

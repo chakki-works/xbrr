@@ -18,6 +18,7 @@ setup(
     license="MIT",
     packages=[
         "edinet",
+        "edinet.document",
         "edinet.client",
         "edinet.models",
         "edinet.parser",
@@ -30,6 +31,6 @@ setup(
         "lxml>=4.3.3"
     ],
     extras_require={
-        "statements": ["pandas>=0.25.1"]
+        "xbrl": ["pandas>=0.25.1"]
     }
 )

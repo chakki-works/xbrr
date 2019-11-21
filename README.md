@@ -55,12 +55,12 @@ pdf_path = edinet.api.document.get_pdf("S100FGR9", save_dir=Path.cwd())
 ### 2. Extract contents from XBRL
 
 ```py
-from edinet.xbrl_file import XBRLFile
+from edinet.document.xbrl_reader import XBRLReader
 from edinet.parser.aspects.business import Business
 
 
-xbrl = XBRLFile("path/to/xbrl/file")
-content = xbrl.parse_by(Business).policy_environment_issue_etc
+xbrl = XBRLReader("path/to/xbrl/file")
+content = xbrl.extract(Business).policy_environment_issue_etc
 ```
 
 Following aspects are supported. The format is based on `三号様式` that is commonly used for annual report.

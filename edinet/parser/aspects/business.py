@@ -1,7 +1,7 @@
-from edinet.parser.xbrl_parser import XBRLParser
+from edinet.parser.base_aspect import BaseAspect
 
 
-class Business(XBRLParser):
+class Business(BaseAspect):
     TAGS = {
         "policy_environment_issue_etc": "jpcrp_cor:BusinessPolicyBusinessEnvironmentIssuesToAddressEtcTextBlock",
         "risks": "jpcrp_cor:BusinessRisksTextBlock",
@@ -12,34 +12,34 @@ class Business(XBRLParser):
         "analysis_of_finance": "jpcrp_cor:AnalysisOfFinancialPositionOperatingResultsAndCashFlowsTextBlock"
     }
 
-    def __init__(self, element):
-        super().__init__(element)
+    def __init__(self, reader):
+        super().__init__(reader)
         self._retrieved = {}
 
     @property
     def policy_environment_issue_etc(self):
-        return self.get_document_feature("policy_environment_issue_etc")
+        return self.get_text_value("policy_environment_issue_etc")
 
     @property
     def risks(self):
-        return self.get_document_feature("risks")
+        return self.get_text_value("risks")
 
     @property
     def management_analysis(self):
-        return self.get_document_feature("management_analysis")
+        return self.get_text_value("management_analysis")
 
     @property
     def research_and_development(self):
-        return self.get_document_feature("research_and_development")
+        return self.get_text_value("research_and_development")
 
     @property
     def overview_of_result(self):
-        return self.get_document_feature("overview_of_result")
+        return self.get_text_value("overview_of_result")
 
     @property
     def overview_of_value_chain(self):
-        return self.get_document_feature("overview_of_value_chain")
+        return self.get_text_value("overview_of_value_chain")
 
     @property
     def analysis_of_finance(self):
-        return self.get_document_feature("analysis_of_finance")
+        return self.get_text_value("analysis_of_finance")

@@ -1,16 +1,11 @@
 import re
 import unicodedata
-from edinet.xbrl_file import XBRLElement
-from edinet.xbrl_feature import XBRLFeature
 
 
 class XBRLParser():
 
     def __init__(self, element=None):
-        self._element = element
-
-    def select_element(self, element=None):
-        return element if element is not None else self._element
+        self.element = element
 
     def normalize(self, text):
         if text is None:
@@ -19,10 +14,10 @@ class XBRLParser():
         _text = unicodedata.normalize("NFKC", _text)
         return _text
 
-    def search_text(self, pattern, element=None):
-        _element = self.select_element(element)
+    def search(self, pattern, element=None):
+        html = element if element else self.element.html
         ptn = re.compile(pattern)
-        tags = _element.find_all(["p", "span"])
+        tags = html.find_all(["p", "span"])
         text = ""
         if tags and len(tags) > 0:
             for e in tags:
@@ -36,11 +31,13 @@ class XBRLParser():
 
     def extract_value(self, prefix="", suffix="",
                       filter_pattern=None, element=None):
+
         if filter_pattern is not None:
-            text = self.search_text(filter_pattern, element)
+            text = self.search(filter_pattern, element)
+        elif element:
+            text = element.text
         else:
-            _element = self.select_element(element)
-            text = _element.text
+            text = self.element.html.text
 
         text = self.normalize(text)
         pattern = re.compile(f"({prefix}).+?({suffix})")
@@ -57,22 +54,3 @@ class XBRLParser():
                 value = float(value)
 
         return value
-
-    def get_document_feature(self, key):
-        html = XBRLElement(self._element).find(self.TAGS[key])
-        if html._element is None:
-            without_ns = self.TAGS[key].split(":")[1]
-            html = XBRLElement(self._element).find(without_ns)
-        feature = self._html_to_feature(html)
-        return feature
-
-    def _html_to_feature(self, html):
-        if html._element:
-            html = html.to_html()
-            raw = html._element.prettify()
-            value = self.normalize(html.text)
-            feature = XBRLFeature.document(value=value, ground=raw)
-        else:
-            feature = None
-
-        return feature
