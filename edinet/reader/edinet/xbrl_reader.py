@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pathlib import Path
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -24,43 +25,63 @@ class XBRLReader(BaseReader):
             raise Exception(
                 f"File or directory {xbrl_dir_or_file} does not Exsit.")
 
+        self.taxonomy_year = -1
         if isinstance(taxonomy, Taxonomy):
             self.taxonomy = taxonomy
         else:
-            taxonomy_root = Path(self.xbrl_file)\
-                                .parent.parent.joinpath("external")
-            self.taxonomy = Taxonomy(taxonomy_root)
+            if self.xbrl_dir:
+                root = Path(self.xbrl_dir.root).parent
+            else:
+                root = Path(self.xbrl_file).parent
+
+            if root.name == "raw":
+                # Cookiecutter data science structure
+                root = root.parent
+            root = root.joinpath("external")
+            self.taxonomy = Taxonomy(root)
 
         self._cache = {}
+        date = self.find("jpdei_cor:CurrentFiscalYearEndDateDEI").text
+        date = datetime.strptime(date, "%Y-%m-%d")
+        for y in self.taxonomy.EDINET_TAXONOMY:
+            boarder_date = datetime(y, 3, 31)
+            if date > boarder_date:
+                self.taxonomy_year = y
+            else:
+                break
 
     @property
     def roles(self):
-        role_ref_tags = self.xbrl.find_all("link:roleRef")
-        role_ref_elements = [t.element for t in role_ref_tags]
+        role_refs = self.find_all("link:roleRef")
         roles = {}
-        for e in role_ref_elements:
-            link = e["xlink:href"]
-            roles[e["roleURI"]] = {
-                "link": e["xlink:href"],
+        for e in role_refs:
+            element = e.element
+            link = element["xlink:href"]
+            roles[element["roleURI"]] = {
+                "link": element["xlink:href"],
                 "name": self.read_by_link(link).element.find("link:definition").text
             }
 
         return roles
 
     @property
+    def taxonomy_path(self):
+        return self.taxonomy.root.joinpath("taxonomy", str(self.taxonomy_year))
+
+    @property
     def namespaces(self):
         schema = self.xbrl.find("xbrli:xbrl")
         namespaces = {}
-        for a in schema.element.attrs:
+        for a in schema.attrs:
             if a.startswith("xmlns:"):
-                namespaces[a.replace("xmlns:", "")] = schema.element.attrs[a]
+                namespaces[a.replace("xmlns:", "")] = schema.attrs[a]
 
         return namespaces
 
     @property
     def xbrl(self):
         if self.xbrl_dir:
-            path = self.xbrl_dir.xbrl._find_file("xbrl", as_xml=False)
+            path = self.xbrl_dir._find_file("xbrl", as_xml=False)
         else:
             path = self.xbrl_file
         return self._read_from_cache(path)
@@ -75,9 +96,35 @@ class XBRLReader(BaseReader):
             self._cache[path] = xml
         return self._cache[path]
 
+    def link_to_path(self, link):
+        path = link
+        if self.taxonomy and path.startswith(self.taxonomy.prefix):
+            path = link.replace(self.taxonomy.prefix, "")
+            path = os.path.join(self.taxonomy_path, path)
+            if not os.path.exists(path):
+                _path = Path(path)
+                xbrl_date = _path.parent.name
+                # check namespace directory
+                taxonomy_date = ""
+                if _path.parent.parent.exists():
+                    for d in _path.parent.parent.iterdir():
+                        if d.is_dir():
+                            taxonomy_date = d.name
+                            break
+
+                if taxonomy_date and taxonomy_date != xbrl_date:
+                    path = path.replace(xbrl_date, taxonomy_date)
+        else:
+            path = os.path.join(self.xbrl_dir._document_folder, path)
+
+        return path
+
     def read_by_link(self, link):
-        if self.xbrl_dir is None or not self.taxonomy.root:
-            raise Exception("XBRL directory or taxonomy is required.")
+        if not self.taxonomy_path.exists():
+            if self.taxonomy_year > 0:
+                self.taxonomy.download(self.taxonomy_year)
+            else:
+                raise Exception("Can't down load taxonomy")
 
         path = link
         element = ""
@@ -85,12 +132,7 @@ class XBRLReader(BaseReader):
         if "#" in path:
             path, element = path.split("#")
 
-        if self.taxonomy and path.startswith(self.taxonomy.prefix):
-            path = path.replace(self.taxonomy.prefix, "")
-            path = os.path.join(self.taxonomy.root, path)
-        else:
-            path = os.path.join(self.root._document_folder, path)
-
+        path = self.link_to_path(path)
         xml = self._read_from_cache(path)
 
         if element:
@@ -122,13 +164,13 @@ class XBRLReader(BaseReader):
             child = pre.find("link:loc", {"xlink:label": arc["xlink:to"]})
 
             if get_name(child) not in nodes:
-                c = create(child["xlink:href"]).set_alias(child["xlink:label"])
+                c = create(self, child["xlink:href"]).set_alias(child["xlink:label"])
                 nodes[get_name(child)] = Node(c, arc["order"])
             else:
                 nodes[get_name(child)].order = arc["order"]
 
             if get_name(parent) not in nodes:
-                p = create(parent["xlink:href"]).set_alias(parent["xlink:label"])
+                p = create(self, parent["xlink:href"]).set_alias(parent["xlink:label"])
                 nodes[get_name(parent)] = Node(p, i)
 
             nodes[get_name(child)].add_parent(nodes[get_name(parent)])
@@ -165,7 +207,7 @@ class XBRLReader(BaseReader):
         label_dict = pd.Series(schemas["name"],
                                index=schemas["label"]).to_dict()
 
-        for i, row in schemas:
+        for i, row in schemas.iterrows():
             for i in range(parent_depth):
                 name = row[f"parent_{i}"]
                 if name in label_dict:

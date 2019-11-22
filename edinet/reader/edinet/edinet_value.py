@@ -36,7 +36,7 @@ class EDINETValue(BaseValue):
         if reader.xbrl_dir:
             label = reader\
                     .read_by_link(reference)\
-                    .label(label_kind, label_verbose).text
+                    .label(label_kind, label_verbose)
         else:
             label = ""
 
@@ -103,10 +103,9 @@ class EDINETElementSchema():
     def create_from_reference(cls, reader, reference,
                               label_kind="", label_verbose=False):
         name = reference.split("#")[-1]
-        label = reader\
-                .read_by_link(reference)\
-                .label(label_kind, label_verbose).text
-        xsd = reader.read(reference).xsd
+        _def = reader.read_by_link(reference)
+        label = _def.label(label_kind, label_verbose)
+        xsd = _def.xsd
         abstract = xsd["abstract"]
         data_type = xsd["type"]
 

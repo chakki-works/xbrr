@@ -7,7 +7,8 @@ class Metadata(BaseParser):
 
     def __init__(self, reader):
         tags = {
-            "fiscal_date": "jpdei_cor:CurrentFiscalYearStartDateDEI",
+            "fiscal_date_start": "jpdei_cor:CurrentFiscalYearStartDateDEI",
+            "fiscal_date_end": "jpdei_cor:CurrentFiscalYearEndDateDEI",
             "fiscal_period_kind": "jpdei_cor:TypeOfCurrentPeriodDEI",
             "name": "jpcrp_cor:CompanyNameCoverPage",
             "name_en": "jpcrp_cor:CompanyNameInEnglishCoverPage",
@@ -19,15 +20,23 @@ class Metadata(BaseParser):
 
     @property
     def fiscal_year(self):
-        value = self.get_text_value("fiscal_date")
+        value = self.get_text_value("fiscal_date_start")
         if value:
             date = datetime.strptime(value.value, "%Y-%m-%d")
             value.value = date.year
         return value
 
     @property
+    def fiscal_year_end_date(self):
+        value = self.get_text_value("fiscal_date_end")
+        if value:
+            date = datetime.strptime(value.value, "%Y-%m-%d")
+            value.value = date
+        return value
+
+    @property
     def fiscal_month(self):
-        value = self.get_text_value("fiscal_date")
+        value = self.get_text_value("fiscal_date_start")
         if value:
             date = datetime.strptime(value.value, "%Y-%m-%d")
             value.value = date.month

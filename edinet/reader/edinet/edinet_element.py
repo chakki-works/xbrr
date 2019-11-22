@@ -16,35 +16,56 @@ class EDINETElement(BaseElement):
         name = self.reference_name
         path = self.reference_path
         xml = None
+
         if path.endswith(".xsd"):
             xml = self.reader._read_from_cache(path)
         else:
-            _dir = os.path.dirname(path)
-            path = self._find_file(_dir, ".xsd")
-            xml = self.reader._read_from_cache(path)
+            path = self._find_file(os.path.dirname(path), ".xsd")
 
-        element = xml.find("xsd:element", {"id": name})
+        if os.path.dirname(path).endswith("PublicDoc"):
+            element = xml.find("element", {"id": name})
+        else:
+            element = xml.find("xsd:element", {"id": name})
+
         return element
 
     def label(self, kind="lab", verbose=False):
+        label = ""
         if kind == "en":
-            return self._get_label("_lab_en.xml", verbose)
+            label = self._get_label("_lab_en.xml", verbose)
         elif kind == "gla":
-            return self._get_label("_lab_gla.xml", verbose)
+            label = self._get_label("_lab_gla.xml", verbose)
         else:
-            return self._get_label("_lab.xml", verbose)
+            label = self._get_label("_lab.xml", verbose)
+
+        if isinstance(label, str):
+            return label
+        else:
+            return label.text
 
     def _get_label(self, extention, verbose):
         name = self.reference_name
         path = self.reference_path
         xml = None
-        _dir = os.path.join(os.path.dirname(path), "label")
-        label_path = self._find_file(_dir, extention)
-        xml = self.reader._read_from_cache(label_path)
-        href = f"../{os.path.basename(path)}#{name}"
+
+        if os.path.dirname(path).endswith("PublicDoc"):
+            label_path = self._find_file(os.path.dirname(path), extention)
+            xml = self.reader._read_from_cache(label_path)
+            href = self.reference
+        else:
+            _dir = os.path.join(os.path.dirname(path), "label")
+            label_path = self._find_file(_dir, extention)
+            xml = self.reader._read_from_cache(label_path)
+            href = f"../{os.path.basename(path)}#{name}"
+
         targets = self._read_link(
             xml=xml, arc_name="link:labelArc", reference=href,
             target_name="link:label", target_attribute="id")
+        
+        if len(targets) == 0:
+            targets = self._read_link(
+                xml=xml, arc_name="link:labelArc", reference=href,
+                target_name="link:label")
 
         if len(targets) > 1:
             for lb in targets:
@@ -56,6 +77,8 @@ class EDINETElement(BaseElement):
 
         elif len(targets) > 0:
             label = targets[0]
+        else:
+            label = None
 
         return label
 

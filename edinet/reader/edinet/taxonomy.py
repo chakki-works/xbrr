@@ -20,14 +20,13 @@ class Taxonomy():
 
     def download(self, year):
         year = int(year)
-        external_dir = Path(self.root).joinpath("external")
-        expand_dir = external_dir.joinpath("taxonomy").joinpath(str(year))
-        taxonomy_file = external_dir.joinpath(f"{year}_taxonomy.zip")
+        expand_dir = self.root.joinpath("taxonomy").joinpath(str(year))
+        taxonomy_file = self.root.joinpath(f"{year}_taxonomy.zip")
 
         download = False
 
-        if not external_dir.exists():
-            external_dir.mkdir(parents=True, exist_ok=True)
+        if not self.root.exists():
+            self.root.mkdir(parents=True, exist_ok=True)
             download = True
 
         if not expand_dir.exists():
@@ -36,7 +35,7 @@ class Taxonomy():
 
         if download:
             # Download
-            external_dir.mkdir(parents=True, exist_ok=True)
+            self.root.mkdir(parents=True, exist_ok=True)
             r = requests.get(self.EDINET_TAXONOMY[year], stream=True)
             with taxonomy_file.open(mode="wb") as f:
                 for chunk in r.iter_content(1024):

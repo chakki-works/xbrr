@@ -14,7 +14,7 @@ class BaseElement():
     def reference_path(self):
         names = self.reference.split("#")
         if len(names) > 0:
-            return names[0]
+            return self.reader.link_to_path(names[0])
         else:
             return ""
 

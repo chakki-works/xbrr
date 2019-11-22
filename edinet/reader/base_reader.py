@@ -9,6 +9,9 @@ class BaseReader():
     def __init__(self):
         self._taxonomy_kind = ""
 
+    def link_to_path(self, link):
+        raise NotImplementedError("You have to implement link_to_path method.")
+
     def extract(self, aspect_cls_or_str, property=""):
         if not isinstance(aspect_cls_or_str, str):
             aspect_cls = aspect_cls_or_str
