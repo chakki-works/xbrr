@@ -1,8 +1,6 @@
-import importlib
 from edinet.client.document_list_client import MetaDataClient
 from edinet.client.document_list_client import DocumentListClient
 from edinet.client.document_client import DocumentClient
-from edinet.document.xbrl_reader import XBRLReader
 
 
 class APIFacade():
@@ -21,35 +19,3 @@ class APIFacade():
     def document(self):
         client = DocumentClient()
         return client
-
-
-class ParserFacade():
-
-    @classmethod
-    def parse(cls, xbrl_path, aspect, property):
-        xbrl = XBRLReader(xbrl_path)
-        imports = (
-            "edinet",
-            "parser",
-            "aspects",
-            aspect
-        )
-
-        _class = None
-        try:
-            module = importlib.import_module(".".join(imports))
-
-            def to_camel(snake_str):
-                components = snake_str.split("_")
-                return "".join(x.title() for x in components)
-
-            _class_name = to_camel(aspect)
-            _class = getattr(module, _class_name)
-
-        except Exception as ex:
-            raise Exception(f"Can't load class that matches {aspect} \n {ex}.")
-
-        parser = xbrl.extract(_class)
-        feature = getattr(parser, property)
-
-        return feature

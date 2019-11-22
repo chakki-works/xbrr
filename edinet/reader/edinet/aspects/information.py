@@ -1,18 +1,17 @@
-from edinet.parser.base_aspect import BaseAspect
-from edinet.document.xbrl_value import XBRLValue
+from edinet.reader.base_parser import BaseParser
+from edinet.reader.edinet.edinet_value import EDINETValue
 
 
-class Information(BaseAspect):
-    TAGS = {
-        "shareholders": "jpcrp_cor:ShareholdingByShareholderCategoryTextBlock",
-        "dividend_policy": "jpcrp_cor:DividendPolicyTextBlock",
-        "directors": "jpcrp_cor:InformationAboutOfficersTextBlock",
-        "corporate_governance": "jpcrp_cor:ExplanationAboutCorporateGovernanceTextBlock"
-    }
+class Information(BaseParser):
 
     def __init__(self, reader):
-        super().__init__(reader)
-        self._retrieved = {}
+        tags = {
+            "shareholders": "jpcrp_cor:ShareholdingByShareholderCategoryTextBlock",
+            "dividend_policy": "jpcrp_cor:DividendPolicyTextBlock",
+            "directors": "jpcrp_cor:InformationAboutOfficersTextBlock",
+            "corporate_governance": "jpcrp_cor:ExplanationAboutCorporateGovernanceTextBlock"
+        }
+        super().__init__(reader, tags)
 
     @property
     def shareholders(self):
@@ -32,17 +31,22 @@ class Information(BaseAspect):
 
     @property
     def number_of_directors(self):
+        value = self.get_text_value("directors")
         numbers, ground = self._extract_number_of_directors()
-        return XBRLValue.integer(numbers["total"], ground=ground)
+        value.value = numbers["total"]
+        value.ground = ground
+        return value
 
     @property
     def number_of_female_executives(self):
+        value = self.get_text_value("directors")
         numbers, ground = self._extract_number_of_directors()
-        return XBRLValue.integer(numbers["female"], ground=ground)
+        value.value = numbers["female"]
+        value.ground = ground
+        return value
 
     def _extract_number_of_directors(self):
-        parser = self.get_parser("directors")
-        text = parser.search("^(男性).+(名).+(女性).+(名)")
+        text = self.search("directors", "^(男性).+(名).+(女性).+(名)")
         numbers = {
             "male": 0,
             "female": 0,
@@ -51,7 +55,7 @@ class Information(BaseAspect):
 
         total = 0
         for p, s in [("男性", "名"), ("女性", "名")]:
-            value = parser.extract_value(p, s)
+            value = self.extract_value("directors", p, s)
             if p == "男性":
                 numbers["male"] = value
             elif p == "女性":

@@ -8,7 +8,7 @@ from tests.utils import delay
 class TestAPI(unittest.TestCase):
 
     @delay
-    def ztest_api_metadata(self):
+    def test_api_metadata(self):
         metadata = edinet.api.metadata.get("2019-01-31")
         self.assertGreater(metadata.count, 0)
 
@@ -35,3 +35,10 @@ class TestAPI(unittest.TestCase):
 
             self.assertTrue(os.path.exists(path))
             os.remove(path)
+
+    def test_extract_element(self):
+        path = os.path.join(os.path.dirname(__file__),
+                            "./data/xbrl2019.xbrl")
+
+        result = edinet.read(path).extract("information", "number_of_directors")
+        self.assertEqual(result.value, 14)

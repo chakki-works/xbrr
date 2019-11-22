@@ -55,8 +55,8 @@ pdf_path = edinet.api.document.get_pdf("S100FGR9", save_dir=Path.cwd())
 ### 2. Extract contents from XBRL
 
 ```py
-from edinet.document.xbrl_reader import XBRLReader
-from edinet.parser.aspects.business import Business
+from edinet.reader.edinet.xbrl_reader import XBRLReader
+from edinet.reader.edinet.aspectsbusiness import Business
 
 
 xbrl = XBRLReader("path/to/xbrl/file")

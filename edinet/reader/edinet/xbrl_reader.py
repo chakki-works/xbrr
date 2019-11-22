@@ -1,31 +1,37 @@
 import os
+from pathlib import Path
 from bs4 import BeautifulSoup
 import pandas as pd
-from edinet.document.xbrl_dir import XBRLDir
-from edinet.document.xbrl_element import XBRLElement
-from edinet.document.taxonomy import Taxonomy
+from edinet.reader.edinet.xbrl_dir import XBRLDir
+from edinet.reader.edinet.taxonomy import Taxonomy
+from edinet.reader.edinet.edinet_value import EDINETValue, EDINETElementSchema
+from edinet.reader.edinet.edinet_element import EDINETElement
+from edinet.reader.base_reader import BaseReader
 
 
-class XBRLReader():
+class XBRLReader(BaseReader):
 
-    def __init__(self, xbrl_file="", xbrl_dir="", taxonomy=""):
-        if not xbrl_file and not xbrl_dir:
-            raise Exception("You have to specify xbrl_file or xbrl_dir")
-
-        self.xbrl_file = xbrl_file
-        self.xbrl_dir = XBRLDir(xbrl_dir)
-        self.taxonomy = Taxonomy(taxonomy)
-        self._cache = {}
-
-    def _read_from_cache(self, path):
-        xml = None
-        if path in self._cache:
-            xml = self._cache[path]
+    def __init__(self, xbrl_dir_or_file="", taxonomy=None):
+        super().__init__()
+        self._taxonomy_kind = "edinet"
+        if os.path.isdir(xbrl_dir_or_file):
+            self.xbrl_dir = XBRLDir(xbrl_dir_or_file)
+            self.xbrl_file = self.xbrl_dir._find_file("xbrl", as_xml=False)
+        elif os.path.isfile(xbrl_dir_or_file):
+            self.xbrl_file = xbrl_dir_or_file
+            self.xbrl_dir = None
         else:
-            with open(path, encoding="utf-8-sig") as f:
-                xml = BeautifulSoup(f, "lxml-xml")
-            self._cache[path] = xml
-        return self._cache[path]
+            raise Exception(
+                f"File or directory {xbrl_dir_or_file} does not Exsit.")
+
+        if isinstance(taxonomy, Taxonomy):
+            self.taxonomy = taxonomy
+        else:
+            taxonomy_root = Path(self.xbrl_file)\
+                                .parent.parent.joinpath("external")
+            self.taxonomy = Taxonomy(taxonomy_root)
+
+        self._cache = {}
 
     @property
     def roles(self):
@@ -53,14 +59,24 @@ class XBRLReader():
 
     @property
     def xbrl(self):
-        if self.xbrl_dir.root:
+        if self.xbrl_dir:
             path = self.xbrl_dir.xbrl._find_file("xbrl", as_xml=False)
         else:
             path = self.xbrl_file
         return self._read_from_cache(path)
 
+    def _read_from_cache(self, path):
+        xml = None
+        if path in self._cache:
+            xml = self._cache[path]
+        else:
+            with open(path, encoding="utf-8-sig") as f:
+                xml = BeautifulSoup(f, "lxml-xml")
+            self._cache[path] = xml
+        return self._cache[path]
+
     def read_by_link(self, link):
-        if not self.xbrl_dir.root or not self.taxonomy.root:
+        if self.xbrl_dir is None or not self.taxonomy.root:
             raise Exception("XBRL directory or taxonomy is required.")
 
         path = link
@@ -81,13 +97,20 @@ class XBRLReader():
             xml = xml.select(f"#{element}")
             if len(xml) > 0:
                 xml = xml[0]
-            xml = XBRLElement(element, xml, link, self)
+            xml = EDINETElement(element, xml, link, self)
 
         return xml
 
-    def read_role(self, role_link):
+    def read_schema_by_role(self, role_link):
+        if self.xbrl_dir is None:
+            raise Exception("XBRL directory is required.")
+
         pre = self.xbrl_dir.pre.find(
             "link:presentationLink", {"xlink:role": role_link})
+
+        def get_name(loc):
+            return loc["xlink:href"].split("#")[-1]
+        create = EDINETElementSchema.create_from_reference
 
         nodes = {}
         for i, arc in enumerate(pre.find_all("link:presentationArc")):
@@ -95,27 +118,27 @@ class XBRLReader():
                 print("Unexpected arctype.")
                 continue
 
-            parent = Node(pre.find("link:loc",
-                                   {"xlink:label": arc["xlink:from"]}), i)
-            child = Node(pre.find("link:loc", {"xlink:label": arc["xlink:to"]}),
-                         arc["order"])
+            parent = pre.find("link:loc", {"xlink:label": arc["xlink:from"]})
+            child = pre.find("link:loc", {"xlink:label": arc["xlink:to"]})
 
-            if child.name not in nodes:
-                nodes[child.name] = child
+            if get_name(child) not in nodes:
+                c = create(child["xlink:href"]).set_alias(child["xlink:label"])
+                nodes[get_name(child)] = Node(c, arc["order"])
             else:
-                nodes[child.name].order = arc["order"]
+                nodes[get_name(child)].order = arc["order"]
 
-            if parent.name not in nodes:
-                nodes[parent.name] = parent
+            if get_name(parent) not in nodes:
+                p = create(parent["xlink:href"]).set_alias(parent["xlink:label"])
+                nodes[get_name(parent)] = Node(p, i)
 
-            nodes[child.name].add_parent(nodes[parent.name])
+            nodes[get_name(child)].add_parent(nodes[get_name(parent)])
 
         parent_depth = -1
         for name in nodes:
             if parent_depth < nodes[name].depth:
                 parent_depth = nodes[name].depth
 
-        data = []
+        schemas = []
         for name in nodes:
             n = nodes[name]
             item = {}
@@ -126,44 +149,36 @@ class XBRLReader():
                 name = p if isinstance(p, str) else p.name
                 order = "0" if isinstance(p, str) else p.order
                 item[f"parent_{i}"] = name
+                item[f"parent_{i}_label"] = ""
                 item[f"parent_{i}_order"] = order
 
-            item["element"] = n.name
             item["order"] = n.order
             item["depth"] = n.depth
+            item.update(n.element.to_dict())
+            schemas.append(item)
 
-            # Label
-            item["label"] = self.read_by_link(n.location).label().text
+        schemas = pd.DataFrame(schemas)
+        schemas.sort_values(by=[c for c in schemas.columns
+                                if c.endswith("order")],
+                            inplace=True)
 
-            # Definition
-            _def = self.read(n.location).definition()
-            item["abstract"] = _def["abstract"]
-            item["type"] = _def["type"]
+        label_dict = pd.Series(schemas["name"],
+                               index=schemas["label"]).to_dict()
 
-            if "xbrli:periodType" in _def.attrs:
-                item["period_type"] = _def["xbrli:periodType"]
+        for i, row in schemas:
+            for i in range(parent_depth):
+                name = row[f"parent_{i}"]
+                if name in label_dict:
+                    schemas.at[i, f"parent_{i}_label"] = label_dict[name]
 
-            if "xbrli:balance" in _def.attrs:
-                item["balance"] = _def["xbrli:balance"]
+        return schemas
 
-            data.append(item)
+    def read_value_by_role(self, role_link):
+        schemas = self.read_role(role_link)
 
-        role_data = pd.DataFrame(data)
-        role_data.sort_values(by=[c for c in data.columns
-                                  if c.endswith("order")],
-                              inplace=True)
-
-        return role_data
-
-    def read_by_role(self, role_link):
-        role_data = self.read_role(role_link)
-        parent_columns = [c for c in role_data.columns
-                          if c.startswith("parent") and c.endswith("order")]
-        parent_depth = len(parent_columns)
         xbrl_data = []
-
-        for i, row in role_data.iterrows():
-            tag_name = row["element"]
+        for i, row in schemas.iterrows():
+            tag_name = row["name"]
 
             for n in self.namespaces:
                 if tag_name.startswith(n):
@@ -176,46 +191,18 @@ class XBRLReader():
                 continue
 
             item = {}
-            for k in role_data.columns:
+            for k in schemas.columns:
                 item[k] = row[k]
 
-            for i in range(parent_depth):
-                mask = role_data["element"] == row[f"parent_{i}"]
-                parent_label = role_data[mask]["label"].tolist()
-                if len(parent_label) > 0:
-                    parent_label = parent_label[0]
-                else:
-                    parent_label = ""
-                item[f"parent_{i}_label"] = parent_label
-
-            item["value"] = element.text
-
-            context_id = element["contextRef"]
-            if context_id.endswith("NonConsolidatedMember"):
-                item["individual"] = True
-            else:
-                item["individual"] = False
-
-            context = self.xbrl.find("xbrli:context", {"id": context_id})
-            if item["period_type"] == "duration":
-                item["period"] = context.find("xbrli:endDate").text
-                item["period_begin"] = context.find("xbrli:startDate").text
-            else:
-                item["period"] = context.find("xbrli:instant").text
-                item["period_begin"] = None
-
-            if "unitRef" in element.attrs:
-                item["unit"] = element["unitRef"]
-            else:
-                item["unit"] = ""
+            value = EDINETValue(self, element).to_dict()
+            for k in value:
+                if k not in item:
+                    item[k] = value[k]
 
             xbrl_data.append(item)
 
         xbrl_data = pd.DataFrame(xbrl_data)
         return xbrl_data
-
-    def extract(self, aspect_cls):
-        return aspect_cls(self)
 
     def find(self, tag, attrs={}, recursive=True, text=None,
              **kwargs):
@@ -232,8 +219,8 @@ class XBRLReader():
     def _to_element(self, tag):
         if tag is None:
             return None
-        location = f"{tag.namespace}#{tag.name}"
-        return XBRLElement(tag, tag, location, self)
+        reference = f"{tag.namespace}#{tag.name}"
+        return EDINETElement(tag, tag, reference, self)
 
 
 class Node():
@@ -248,15 +235,15 @@ class Node():
 
     @property
     def name(self):
-        return self.element["xlink:href"].split("#")[-1]
+        return self.element.name
 
     @property
     def label(self):
-        return self.element["xlink:label"]
+        return self.element.label
 
     @property
-    def location(self):
-        return self.element["xlink:href"]
+    def reference(self):
+        return self.element.reference
 
     @property
     def depth(self):

@@ -1,14 +1,14 @@
 import os
 import unittest
-from edinet.document.xbrl_reader import XBRLReader
-from edinet.parser.aspects.finance import Finance
+from edinet.reader.edinet.xbrl_reader import XBRLReader
+from edinet.reader.edinet.aspects.finance import Finance
 
 
 class TestFinance(unittest.TestCase):
 
     def get_xbrl(self):
         path = os.path.join(os.path.dirname(__file__),
-                            "../../data/xbrl2019.xbrl")
+                            "../../../data/xbrl2019.xbrl")
         xbrl = XBRLReader(path)
         return xbrl
 
@@ -19,7 +19,7 @@ class TestFinance(unittest.TestCase):
     def test_segment_information(self):
         xbrl = self.get_xbrl()
         feature = xbrl.extract(Finance).segment_information
-        self.assertTrue(feature.value.startswith("(セグメント情報等)"))
+        self.assertTrue(feature.normalized_text.startswith("(セグメント情報等)"))
 
     def test_real_estate_for_lease(self):
         xbrl = self.get_xbrl()

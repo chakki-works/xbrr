@@ -1,29 +1,13 @@
 import os
 import unittest
 from edinet.client.document_client import DocumentClient
-from edinet.document.xbrl_reader import XBRLReader, XBRLDir
+from edinet.reader.edinet.xbrl_dir import XBRLDir
 
 
-class TestXBRLFile(unittest.TestCase):
-
-    def test_find(self):
-        path = os.path.join(os.path.dirname(__file__),
-                            "./data/xbrl2019.xbrl")
-        xbrl = XBRLReader(path)
-        element = xbrl.find("jpdei_cor:EDINETCodeDEI")
-        self.assertEqual(element.text, "E05739")
-
-    def test_to_html(self):
-        path = os.path.join(os.path.dirname(__file__),
-                            "./data/xbrl2019.xbrl")
-        xbrl = XBRLReader(path)
-        tag = "jpcrp_cor:InformationAboutOfficersTextBlock"
-        html = xbrl.find(tag).html
-
-        self.assertTrue(html)
+class TestXBRLDir(unittest.TestCase):
 
     def test_xbrl_dir(self):
-        _dir = os.path.join(os.path.dirname(__file__), "./data")
+        _dir = os.path.join(os.path.dirname(__file__), "../../data")
         client = DocumentClient()
         file_path = client.get_xbrl("S100FGR9", save_dir=_dir,
                                     expand_level="dir")

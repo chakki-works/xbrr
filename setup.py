@@ -18,11 +18,11 @@ setup(
     license="MIT",
     packages=[
         "edinet",
-        "edinet.document",
         "edinet.client",
         "edinet.models",
-        "edinet.parser",
-        "edinet.parser.aspects",
+        "edinet.reader",
+        "edinet.reader.edinet",
+        "edinet.reader.edinet.aspects",
         ],
     url="https://github.com/chakki-works/edinet-python",
     install_requires=[
