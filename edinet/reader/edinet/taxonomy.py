@@ -43,11 +43,11 @@ class Taxonomy():
             # Extract
             with ZipFile(taxonomy_file, "r") as zip:
                 for f in zip.namelist():
-                    # Avoid Japanese path
-                    print(f)
-                    dirs = f.split("/")
-                    if dirs[2] == "taxonomy":
-                        _to = expand_dir.joinpath("/".join(dirs[3:]))
+                    dirs = Path(f).parts
+                    if "taxonomy" in dirs:
+                        # Avoid Japanese path
+                        dirs = dirs[(dirs.index("taxonomy") + 1):]
+                        _to = expand_dir.joinpath("/".join(dirs))
                         _to.parent.mkdir(parents=True, exist_ok=True)
                         with _to.open("wb") as _to_f:
                             _to_f.write(zip.read(f))
