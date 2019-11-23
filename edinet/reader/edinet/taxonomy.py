@@ -35,7 +35,6 @@ class Taxonomy():
 
         if download:
             # Download
-            self.root.mkdir(parents=True, exist_ok=True)
             r = requests.get(self.EDINET_TAXONOMY[year], stream=True)
             with taxonomy_file.open(mode="wb") as f:
                 for chunk in r.iter_content(1024):
@@ -44,7 +43,8 @@ class Taxonomy():
             # Extract
             with ZipFile(taxonomy_file, "r") as zip:
                 for f in zip.namelist():
-                    # Avoid Japanese path 
+                    # Avoid Japanese path
+                    print(f)
                     dirs = f.split("/")
                     if dirs[2] == "taxonomy":
                         _to = expand_dir.joinpath("/".join(dirs[3:]))
