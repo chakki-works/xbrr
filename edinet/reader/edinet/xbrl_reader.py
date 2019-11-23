@@ -15,6 +15,8 @@ class XBRLReader(BaseReader):
     def __init__(self, xbrl_dir_or_file="", taxonomy=None):
         super().__init__()
         self._taxonomy_kind = "edinet"
+        self._cache = {}
+
         if os.path.isdir(xbrl_dir_or_file):
             self.xbrl_dir = XBRLDir(xbrl_dir_or_file)
             self.xbrl_file = self.xbrl_dir._find_file("xbrl", as_xml=False)
@@ -25,7 +27,6 @@ class XBRLReader(BaseReader):
             raise Exception(
                 f"File or directory {xbrl_dir_or_file} does not Exsit.")
 
-        self.taxonomy_year = -1
         if isinstance(taxonomy, Taxonomy):
             self.taxonomy = taxonomy
         else:
@@ -39,9 +40,11 @@ class XBRLReader(BaseReader):
                 root = root.parent
             root = root.joinpath("external")
             self.taxonomy = Taxonomy(root)
+        self.taxonomy_year = -1
+        self.__set_taxonomy_year()
 
-        self._cache = {}
-        date = self.find("jpdei_cor:CurrentFiscalYearEndDateDEI").text
+    def __set_taxonomy_year(self):
+        date = self.xbrl.find("jpdei_cor:CurrentFiscalYearEndDateDEI").text
         date = datetime.strptime(date, "%Y-%m-%d")
         for y in self.taxonomy.EDINET_TAXONOMY:
             boarder_date = datetime(y, 3, 31)
@@ -120,11 +123,8 @@ class XBRLReader(BaseReader):
         return path
 
     def read_by_link(self, link):
-        if not self.taxonomy_path.exists():
-            if self.taxonomy_year > 0:
-                self.taxonomy.download(self.taxonomy_year)
-            else:
-                raise Exception("Can't down load taxonomy")
+        if link.startswith(self.taxonomy.prefix):
+            self.taxonomy.download(self.taxonomy_year)
 
         path = link
         element = ""

@@ -33,12 +33,11 @@ class EDINETValue(BaseValue):
         if "unitRef" in element.attrs:
             unit = element["unitRef"]
 
+        label = ""
         if reader.xbrl_dir:
             label = reader\
                     .read_by_link(reference)\
                     .label(label_kind, label_verbose)
-        else:
-            label = ""
 
         consolidated = True
         period = None
@@ -102,12 +101,17 @@ class EDINETElementSchema():
     @classmethod
     def create_from_reference(cls, reader, reference,
                               label_kind="", label_verbose=False):
+
         name = reference.split("#")[-1]
-        _def = reader.read_by_link(reference)
-        label = _def.label(label_kind, label_verbose)
-        xsd = _def.xsd
-        abstract = xsd["abstract"]
-        data_type = xsd["type"]
+        label = ""
+        abstract = ""
+        data_type = ""
+        if reader.xbrl_dir:
+            _def = reader.read_by_link(reference)
+            label = _def.label(label_kind, label_verbose)
+            xsd = _def.xsd
+            abstract = xsd["abstract"]
+            data_type = xsd["type"]
 
         period_type = ""
         if "xbrli:periodType" in xsd.attrs:
