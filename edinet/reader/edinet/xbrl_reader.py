@@ -46,11 +46,10 @@ class XBRLReader(BaseReader):
     def __set_taxonomy_year(self):
         date = self.xbrl.find("jpdei_cor:CurrentFiscalYearEndDateDEI").text
         date = datetime.strptime(date, "%Y-%m-%d")
-        for y in self.taxonomy.EDINET_TAXONOMY:
+        for y in sorted(list(self.taxonomy.EDINET_TAXONOMY.keys()), reverse=True):
             boarder_date = datetime(y, 3, 31)
             if date > boarder_date:
                 self.taxonomy_year = y
-            else:
                 break
 
     @property
@@ -101,14 +100,22 @@ class XBRLReader(BaseReader):
 
     def link_to_path(self, link):
         path = link
+        print(f"path: {path}")
         if self.taxonomy and path.startswith(self.taxonomy.prefix):
             path = link.replace(self.taxonomy.prefix, "")
             path = os.path.join(self.taxonomy_path, path)
+            print(f"replaced path: {path}")
+            print(f"exists: {os.path.exists(path)}")
             if not os.path.exists(path):
                 _path = Path(path)
                 xbrl_date = _path.parent.name
+                print(f"xbrl_parent_dir: {xbrl_date}")
                 # check namespace directory
                 taxonomy_date = ""
+                print("path info:")
+                print(f"{_path.parent.parent}")
+                print(f"{_path.parent.parent.exists()}")
+                print(f"{list(_path.parent.parent.iterdir())}")
                 if _path.parent.parent.exists():
                     for d in _path.parent.parent.iterdir():
                         if d.is_dir():
@@ -123,8 +130,13 @@ class XBRLReader(BaseReader):
         return path
 
     def read_by_link(self, link):
+        print(f"read_by_link: {link}")
+        print(f"download execute?: {link.startswith(self.taxonomy.prefix)} => {self.taxonomy_year}")
         if link.startswith(self.taxonomy.prefix):
-            self.taxonomy.download(self.taxonomy_year)
+            downloaded = self.taxonomy.download(self.taxonomy_year)
+            print(f"Downloaded dir {downloaded}")
+            print(f"{os.path.exists(downloaded)}")
+            print(f"{list(downloaded.iterdir())}")
 
         path = link
         element = ""
