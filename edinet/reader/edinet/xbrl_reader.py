@@ -117,7 +117,7 @@ class XBRLReader(BaseReader):
                 if taxonomy_date and taxonomy_date != xbrl_date:
                     path = path.replace(xbrl_date, taxonomy_date)
         else:
-            path = os.path.join(self.xbrl_dir._document_folder, path)
+            path = self.xbrl_dir._find_file("xsd", as_xml=False)
 
         return path
 
@@ -142,25 +142,44 @@ class XBRLReader(BaseReader):
 
         return xml
 
-    def read_schema_by_role(self, role_link):
+    def read_schema_by_role(self, role_link, kind="presentation"):
         if self.xbrl_dir is None:
             raise Exception("XBRL directory is required.")
 
-        pre = self.xbrl_dir.pre.find(
-            "link:presentationLink", {"xlink:role": role_link})
+        doc = None
+        link_node = ""
+        arc_node = ""
+        if kind == "presentation":
+            doc = self.xbrl_dir.pre
+            link_node = "link:presentationLink"
+            arc_node = "link:presentationArc"
+        elif kind == "calculation":
+            doc = self.xbrl_dir.cal
+            link_node = "link:calculationLink"
+            arc_node = "link:calculationArc"
+        else:
+            raise Exception(f"Does not support {kind}.")
+
+        role = doc.find(link_node, {"xlink:role": role_link})
 
         def get_name(loc):
             return loc["xlink:href"].split("#")[-1]
         create = EDINETElementSchema.create_from_reference
 
         nodes = {}
-        for i, arc in enumerate(pre.find_all("link:presentationArc")):
-            if not arc["xlink:arcrole"].endswith("parent-child"):
+        arc_role = ""
+        if kind == "calculation":
+            arc_role = "summation-item"
+        else:
+            arc_role = "parent-child"
+
+        for i, arc in enumerate(role.find_all(arc_node)):
+            if not arc["xlink:arcrole"].endswith(arc_role):
                 print("Unexpected arctype.")
                 continue
 
-            parent = pre.find("link:loc", {"xlink:label": arc["xlink:from"]})
-            child = pre.find("link:loc", {"xlink:label": arc["xlink:to"]})
+            parent = role.find("link:loc", {"xlink:label": arc["xlink:from"]})
+            child = role.find("link:loc", {"xlink:label": arc["xlink:to"]})
 
             if get_name(child) not in nodes:
                 c = create(self, child["xlink:href"]).set_alias(child["xlink:label"])
@@ -183,7 +202,7 @@ class XBRLReader(BaseReader):
         for name in nodes:
             n = nodes[name]
             item = {}
-            parents = n.get_parents()
+            parents = list(reversed(n.get_parents()))
             parents = parents + ([""] * (parent_depth - len(parents)))
 
             for i, p in enumerate(parents):
@@ -214,8 +233,8 @@ class XBRLReader(BaseReader):
 
         return schemas
 
-    def read_value_by_role(self, role_link):
-        schemas = self.read_role(role_link)
+    def read_value_by_role(self, role_link, kind="presentation"):
+        schemas = self.read_schema_by_role(role_link, kind)
 
         xbrl_data = []
         for i, row in schemas.iterrows():
@@ -223,45 +242,70 @@ class XBRLReader(BaseReader):
 
             for n in self.namespaces:
                 if tag_name.startswith(n):
-                    tag_name = f"{n}:{tag_name.replace(n + '_', '')}"
+                    tag_name = tag_name.replace(f"{n}_", f"{n}:")
                     break
 
-            tag = self.xbrl.find(tag_name)
-            element = tag.element
-            if element is None:
+            tag_element = self.xbrl.find(tag_name)
+            if tag_element is None:
                 continue
 
-            item = {}
-            for k in schemas.columns:
-                item[k] = row[k]
+            for element in self.find_all(tag_name):
+                item = {}
+                for k in schemas.columns:
+                    item[k] = row[k]
 
-            value = EDINETValue(self, element).to_dict()
-            for k in value:
-                if k not in item:
-                    item[k] = value[k]
+                value = EDINETValue.create_from_element(
+                            self, element).to_dict()
+                for k in value:
+                    if k not in item:
+                        item[k] = value[k]
 
-            xbrl_data.append(item)
+                xbrl_data.append(item)
 
         xbrl_data = pd.DataFrame(xbrl_data)
         return xbrl_data
 
     def find(self, tag, attrs={}, recursive=True, text=None,
              **kwargs):
-        tag_element = self.xbrl.find(tag, attrs, recursive, text, **kwargs)
-        return self._to_element(tag_element)
+        element = self.xbrl.find(tag, attrs, recursive, text, **kwargs)
+        return self._to_element(tag, element)
 
     def find_all(self, tag, attrs={}, recursive=True, text=None,
                  limit=None, **kwargs):
-        tag_elements = self.xbrl.find_all(
+        elements = self.xbrl.find_all(
                         tag, attrs, recursive, text, limit, **kwargs)
 
-        return [self._to_element(e) for e in tag_elements]
+        return [self._to_element(tag, e) for e in elements]
 
-    def _to_element(self, tag):
-        if tag is None:
+    def _to_element(self, tag, element):
+        if element is None:
             return None
-        reference = f"{tag.namespace}#{tag.name}"
-        return EDINETElement(tag, tag, reference, self)
+
+        reference = tag.replace(":", "_")
+        if element.namespace:
+            path = self.link_to_path(element.namespace)
+            namespace_root, prefix = os.path.split(path)
+            xsd_name = ""
+            if os.path.isdir(namespace_root):
+                fs = [f for f in os.listdir(namespace_root)
+                      if f.startswith(prefix) and f.endswith(".xsd")]
+                if len(fs) > 0:
+                    xsd_name = fs[0]
+
+            if element.namespace.startswith(self.taxonomy.prefix):
+                namespace_root = namespace_root.replace(str(self.taxonomy_path),
+                                                        self.taxonomy.prefix)
+                namespace_root = namespace_root.replace("\\", "")  # Windows Issue
+            else:
+                namespace_root = ""
+
+            if namespace_root:
+                reference = f"{namespace_root}/{xsd_name}#{reference}"
+            else:
+                reference = f"{xsd_name}#{reference}"
+
+        print(reference)
+        return EDINETElement(tag, element, reference, self)
 
 
 class Node():

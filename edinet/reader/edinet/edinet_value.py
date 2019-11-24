@@ -26,15 +26,21 @@ class EDINETValue(BaseValue):
     @classmethod
     def create_from_element(cls, reader, element,
                             label_kind="", label_verbose=False):
-        name = element.name
-        reference = f"{element.namespace}#{element.name}"
-        value = element.text
+
+        _element = element.element
+        name = _element.name
+        reference = element.reference
+        value = _element.text
         unit = ""
-        if "unitRef" in element.attrs:
-            unit = element["unitRef"]
+        if "unitRef" in _element.attrs:
+            unit = _element["unitRef"]
 
         label = ""
         if reader.xbrl_dir:
+            label = reader\
+                    .read_by_link(reference)\
+                    .label(label_kind, label_verbose)
+
             label = reader\
                     .read_by_link(reference)\
                     .label(label_kind, label_verbose)
@@ -43,8 +49,8 @@ class EDINETValue(BaseValue):
         period = None
         period_start = None
 
-        if "contextRef" in element.attrs:
-            context_id = element["contextRef"]
+        if "contextRef" in _element.attrs:
+            context_id = _element["contextRef"]
             if context_id.endswith("NonConsolidatedMember"):
                 consolidated = False
 

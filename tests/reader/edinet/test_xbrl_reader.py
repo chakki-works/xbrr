@@ -22,14 +22,14 @@ class TestXBRLReader(unittest.TestCase):
         if os.path.exists(cls.reader.taxonomy.root):
             shutil.rmtree(cls.reader.taxonomy.root)
 
-    def xtest_find(self):
+    def test_find(self):
         path = os.path.join(os.path.dirname(__file__),
                             "../../data/xbrl2019.xbrl")
         xbrl = XBRLReader(path)
         element = xbrl.find("jpdei_cor:EDINETCodeDEI")
         self.assertEqual(element.text, "E05739")
 
-    def xtest_to_html(self):
+    def test_to_html(self):
         path = os.path.join(os.path.dirname(__file__),
                             "../../data/xbrl2019.xbrl")
         xbrl = XBRLReader(path)
@@ -63,8 +63,16 @@ class TestXBRLReader(unittest.TestCase):
 
     def test_read_schema_by_role(self):
         bs = self.reader.read_schema_by_role("http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_BalanceSheet")
+        bs.to_csv("bs.csv", index=False, encoding="shift_jis")
         self.assertGreater(len(bs), 0)
 
     def test_read_value_by_role(self):
-        pl = self.reader.read_schema_by_role("http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_StatementOfIncome")
+        pl = self.reader.read_value_by_role("http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_StatementOfIncome")
+        pl.to_csv("pl.csv", index=False, encoding="shift_jis")
+        self.assertGreater(len(pl), 0)
+
+    def test_read_value_by_role_calc(self):
+        pl = self.reader.read_value_by_role("http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_StatementOfIncome",
+                                            kind="calculation")
+        pl.to_csv("pl_cal.csv", index=False, encoding="shift_jis")
         self.assertGreater(len(pl), 0)
