@@ -38,8 +38,8 @@ class BaseParser():
     def get_text_value(self, name):
         element = self.read(name)
         if element:
-            value = EDINETValue.create_from_tag_name(
-                        self.reader, element.element)
+            value = EDINETValue.create_from_element(
+                        self.reader, element)
 
             html = element.html
             if html:

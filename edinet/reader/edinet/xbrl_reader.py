@@ -116,8 +116,10 @@ class XBRLReader(BaseReader):
 
                 if taxonomy_date and taxonomy_date != xbrl_date:
                     path = path.replace(xbrl_date, taxonomy_date)
-        else:
+        elif self.xbrl_dir:
             path = self.xbrl_dir._find_file("xsd", as_xml=False)
+        else:
+            path = os.path.dirname(self.xbrl_file)
 
         return path
 
@@ -202,10 +204,10 @@ class XBRLReader(BaseReader):
         for name in nodes:
             n = nodes[name]
             item = {}
-            parents = list(reversed(n.get_parents()))
+            parents = n.get_parents()
             parents = parents + ([""] * (parent_depth - len(parents)))
 
-            for i, p in enumerate(parents):
+            for i, p in zip(reversed(range(parent_depth)), parents):
                 name = p if isinstance(p, str) else p.name
                 order = "0" if isinstance(p, str) else p.order
                 item[f"parent_{i}"] = name
@@ -222,14 +224,14 @@ class XBRLReader(BaseReader):
                                 if c.endswith("order")],
                             inplace=True)
 
-        label_dict = pd.Series(schemas["name"],
-                               index=schemas["label"]).to_dict()
+        label_dict = pd.Series(schemas["label"].tolist(),
+                               index=schemas["name"].tolist()).to_dict()
 
         for i, row in schemas.iterrows():
-            for i in range(parent_depth):
-                name = row[f"parent_{i}"]
+            for j in range(parent_depth):
+                name = row[f"parent_{j}"]
                 if name in label_dict:
-                    schemas.at[i, f"parent_{i}_label"] = label_dict[name]
+                    schemas.loc[i, f"parent_{j}_label"] = label_dict[name]
 
         return schemas
 
@@ -293,9 +295,9 @@ class XBRLReader(BaseReader):
                     xsd_name = fs[0]
 
             if element.namespace.startswith(self.taxonomy.prefix):
-                namespace_root = namespace_root.replace(str(self.taxonomy_path),
-                                                        self.taxonomy.prefix)
-                namespace_root = namespace_root.replace("\\", "")  # Windows Issue
+                namespace_root = namespace_root.replace(
+                                    str(self.taxonomy_path) + os.sep,
+                                    self.taxonomy.prefix)
             else:
                 namespace_root = ""
 
@@ -304,7 +306,6 @@ class XBRLReader(BaseReader):
             else:
                 reference = f"{xsd_name}#{reference}"
 
-        print(reference)
         return EDINETElement(tag, element, reference, self)
 
 
