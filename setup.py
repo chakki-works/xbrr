@@ -31,6 +31,8 @@ setup(
         "lxml>=4.3.3"
     ],
     extras_require={
-        "reader": ["pandas>=0.25.1"]
+        "reader": [
+            "pandas>=0.25.1"
+        ]
     }
 )

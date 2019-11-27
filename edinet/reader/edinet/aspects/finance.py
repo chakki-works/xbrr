@@ -1,3 +1,4 @@
+import warnings
 from edinet.reader.base_parser import BaseParser
 
 
@@ -11,6 +12,28 @@ class Finance(BaseParser):
         }
 
         super().__init__(reader, tags)
+
+    @property
+    def use_IFRS(self):
+        if "jpigp_cor" in self.reader.namespaces:
+            return True
+        else:
+            return False
+
+    def bs(self, ifrs=False, link_type="calculation"):
+        role_uri = "http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_BalanceSheet"
+        if ifrs and self.use_IFRS:
+            role_uri = "http://disclosure.edinet-fsa.go.jp/role/jpigp/rol_ConsolidatedStatementOfFinancialPositionIFRS"
+
+        bs = self.reader.read_value_by_role(role_uri, link_type)
+        return bs
+
+    def pl(self, ifrs=False, link_type="calculation"):
+        role_uri = "http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_StatementOfIncome"
+        if ifrs and self.use_IFRS:
+            role_uri = "http://disclosure.edinet-fsa.go.jp/role/jpigp/rol_ConsolidatedStatementOfComprehensiveIncomeSingleStatementIFRS"
+        pl = self.reader.read_value_by_role(role_uri, link_type)
+        return pl
 
     @property
     def voluntary_accounting_policy_change(self):

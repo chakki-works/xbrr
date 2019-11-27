@@ -98,7 +98,13 @@ Following aspects are supported. The format is based on `三号様式` that is c
     4. コーポレート・ガバナンスの状況等: `corporate_governance`
 5. 経理の状況: `Finance`
     1. 連結財務諸表等
+        * 連結財政状況計算書: `consolidated_bs`
+        * 連結包括利益計算書: `consolidated_pl`
+        * 連結持分変動計算書
+        * 連結キャッシュ・フロー計算書
     2. 財務諸表等
+        * 貸借対照表: `bs`
+        * 損益計算書: `pl`
         * 注記: `notes`
         * 会計方針の変更/会計基準等の改正等以外の正当な理由による会計方針の変更: `voluntary_accounting_policy_change`
         * セグメント情報等: `segment_information`

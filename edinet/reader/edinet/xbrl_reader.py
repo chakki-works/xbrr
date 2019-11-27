@@ -40,16 +40,25 @@ class XBRLReader(BaseReader):
                 root = root.parent
             root = root.joinpath("external")
             self.taxonomy = Taxonomy(root)
-        self.taxonomy_year = -1
+        self.taxonomy_year = ""
         self.__set_taxonomy_year()
 
     def __set_taxonomy_year(self):
+        self.taxonomy_year = ""
         date = self.xbrl.find("jpdei_cor:CurrentFiscalYearEndDateDEI").text
+        kind = self.xbrl.find("jpdei_cor:TypeOfCurrentPeriodDEI").text
         date = datetime.strptime(date, "%Y-%m-%d")
         for y in sorted(list(self.taxonomy.EDINET_TAXONOMY.keys()), reverse=True):
-            boarder_date = datetime(y, 3, 31)
-            if date > boarder_date:
+            boarder_date = datetime(int(y[:4]), 3, 31)
+            if kind[0] in ("Q", "H") and date > boarder_date:
                 self.taxonomy_year = y
+            elif date >= boarder_date:
+                if y == 2019:
+                    self.taxonomy_year = "2019_cg_ifrs"
+                else:
+                    self.taxonomy_year = y
+
+            if self.taxonomy_year:
                 break
 
     @property
@@ -138,50 +147,59 @@ class XBRLReader(BaseReader):
 
         if element:
             xml = xml.select(f"#{element}")
+            # xml = xml.find("element", {"id": element})
             if len(xml) > 0:
                 xml = xml[0]
             xml = EDINETElement(element, xml, link, self)
 
         return xml
 
-    def read_schema_by_role(self, role_link, kind="presentation"):
+    def read_schema_by_role(self, role_link, link_type="presentation",
+                            label_kind="", label_verbose=False):
         if self.xbrl_dir is None:
             raise Exception("XBRL directory is required.")
 
         doc = None
         link_node = ""
         arc_node = ""
-        if kind == "presentation":
+        if link_type == "presentation":
             doc = self.xbrl_dir.pre
             link_node = "link:presentationLink"
             arc_node = "link:presentationArc"
-        elif kind == "calculation":
+        elif link_type == "calculation":
             doc = self.xbrl_dir.cal
             link_node = "link:calculationLink"
             arc_node = "link:calculationArc"
         else:
-            raise Exception(f"Does not support {kind}.")
+            raise Exception(f"Does not support {link_type}.")
 
         role = doc.find(link_node, {"xlink:role": role_link})
 
         def get_name(loc):
             return loc["xlink:href"].split("#")[-1]
-        create = EDINETElementSchema.create_from_reference
+
+        def create(reader, reference):
+            return EDINETElementSchema.create_from_reference(
+                        reader, reference, label_kind, label_verbose)
 
         nodes = {}
         arc_role = ""
-        if kind == "calculation":
+        if link_type == "calculation":
             arc_role = "summation-item"
         else:
             arc_role = "parent-child"
+
+        locs = {}
+        for loc in role.find_all("link:loc"):
+            locs[loc["xlink:label"]] = loc
 
         for i, arc in enumerate(role.find_all(arc_node)):
             if not arc["xlink:arcrole"].endswith(arc_role):
                 print("Unexpected arctype.")
                 continue
 
-            parent = role.find("link:loc", {"xlink:label": arc["xlink:from"]})
-            child = role.find("link:loc", {"xlink:label": arc["xlink:to"]})
+            parent = locs[arc["xlink:from"]]
+            child = locs[arc["xlink:to"]]
 
             if get_name(child) not in nodes:
                 c = create(self, child["xlink:href"]).set_alias(child["xlink:label"])
@@ -235,8 +253,10 @@ class XBRLReader(BaseReader):
 
         return schemas
 
-    def read_value_by_role(self, role_link, kind="presentation"):
-        schemas = self.read_schema_by_role(role_link, kind)
+    def read_value_by_role(self, role_link, link_type="presentation",
+                           label_kind="", label_verbose=False):
+        schemas = self.read_schema_by_role(role_link, link_type,
+                                           label_kind, label_verbose)
 
         xbrl_data = []
         for i, row in schemas.iterrows():
@@ -257,7 +277,7 @@ class XBRLReader(BaseReader):
                     item[k] = row[k]
 
                 value = EDINETValue.create_from_element(
-                            self, element).to_dict()
+                            self, element, label_kind, label_verbose).to_dict()
                 for k in value:
                     if k not in item:
                         item[k] = value[k]

@@ -41,10 +41,6 @@ class EDINETValue(BaseValue):
                     .read_by_link(reference)\
                     .label(label_kind, label_verbose)
 
-            label = reader\
-                    .read_by_link(reference)\
-                    .label(label_kind, label_verbose)
-
         consolidated = True
         period = None
         period_start = None
@@ -112,20 +108,20 @@ class EDINETElementSchema():
         label = ""
         abstract = ""
         data_type = ""
+        period_type = ""
+        balance = ""
+
         if reader.xbrl_dir:
             _def = reader.read_by_link(reference)
             label = _def.label(label_kind, label_verbose)
             xsd = _def.xsd
             abstract = xsd["abstract"]
             data_type = xsd["type"]
+            if "xbrli:periodType" in xsd.attrs:
+                period_type = xsd["xbrli:periodType"]
 
-        period_type = ""
-        if "xbrli:periodType" in xsd.attrs:
-            period_type = xsd["xbrli:periodType"]
-
-        balance = ""
-        if "xbrli:balance" in xsd.attrs:
-            balance = xsd["xbrli:balance"]
+            if "xbrli:balance" in xsd.attrs:
+                balance = xsd["xbrli:balance"]
 
         instance = cls(name=name, reference=reference, label=label,
                        abstract=abstract, data_type=data_type,

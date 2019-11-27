@@ -50,22 +50,17 @@ class EDINETElement(BaseElement):
 
         if os.path.dirname(path).endswith("PublicDoc"):
             label_path = self._find_file(os.path.dirname(path), extention)
-            xml = self.reader._read_from_cache(label_path)
             href = self.reference
         else:
             _dir = os.path.join(os.path.dirname(path), "label")
             label_path = self._find_file(_dir, extention)
-            xml = self.reader._read_from_cache(label_path)
             href = f"../{os.path.basename(path)}#{name}"
+
+        xml = self.reader._read_from_cache(label_path)
 
         targets = self._read_link(
             xml=xml, arc_name="link:labelArc", reference=href,
             target_name="link:label", target_attribute="id")
-        
-        if len(targets) == 0:
-            targets = self._read_link(
-                xml=xml, arc_name="link:labelArc", reference=href,
-                target_name="link:label")
 
         if len(targets) > 1:
             for lb in targets:
@@ -107,5 +102,7 @@ class EDINETElement(BaseElement):
         targets = []
         if arc is not None:
             targets = xml.find_all(target_name, {target_attribute: arc["xlink:to"]})
+            if len(targets) == 0 and target_attribute != "xlink:label":
+                targets = xml.find_all(target_name, {"xlink:label": arc["xlink:to"]})
 
         return targets
