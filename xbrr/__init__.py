@@ -1,0 +1,1 @@
+import xbrr.edinet

@@ -6,10 +6,9 @@ python:
 before_install:
   - python --version
 install:
-  - pip install pipenv
-  - pipenv install --dev
+  - pip install -r requirements-test.txt
 script:
-  - pipenv run pytest --cov=edinet tests/
+  - pytest --cov=xbrr tests/
 after_success:
   - codecov
 deploy:
