@@ -15,6 +15,7 @@ class XBRLReader(BaseReader):
     def __init__(self, xbrl_dir_or_file="", taxonomy=None):
         super().__init__()
         self._taxonomy_kind = "edinet"
+        self.__xbrl_dir_or_file = xbrl_dir_or_file
         self._cache = {}
 
         if os.path.isdir(xbrl_dir_or_file):
@@ -42,6 +43,9 @@ class XBRLReader(BaseReader):
             self.taxonomy = Taxonomy(root)
         self.taxonomy_year = ""
         self.__set_taxonomy_year()
+
+    def __reduce_ex__(self, proto):
+        return type(self), (self.__xbrl_dir_or_file, self.taxonomy)
 
     def __set_taxonomy_year(self):
         self.taxonomy_year = ""

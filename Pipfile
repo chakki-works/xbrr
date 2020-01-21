@@ -9,6 +9,7 @@ pytest = "*"
 twine = "*"
 pytest-cov = "*"
 codecov = "*"
+pyfbi = "*"
 
 [packages]
 requests = "*"

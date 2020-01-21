@@ -26,14 +26,20 @@ class Finance(BaseParser):
             role_uri = "http://disclosure.edinet-fsa.go.jp/role/jpigp/rol_ConsolidatedStatementOfFinancialPositionIFRS"
 
         bs = self.reader.read_value_by_role(role_uri, link_type)
-        return bs
+        return self.__filter_duplicate(bs)
 
     def pl(self, ifrs=False, link_type="calculation"):
         role_uri = "http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_StatementOfIncome"
         if ifrs and self.use_IFRS:
             role_uri = "http://disclosure.edinet-fsa.go.jp/role/jpigp/rol_ConsolidatedStatementOfComprehensiveIncomeSingleStatementIFRS"
         pl = self.reader.read_value_by_role(role_uri, link_type)
-        return pl
+        return self.__filter_duplicate(pl)
+
+    def __filter_duplicate(self, data):
+        # Exclude dimension member
+        data.drop_duplicates(subset=("name", "period"), keep="first",
+                             inplace=True)
+        return data
 
     @property
     def voluntary_accounting_policy_change(self):

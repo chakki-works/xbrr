@@ -6,6 +6,7 @@ class EDINETValue(BaseValue):
     def __init__(self, name="", reference="",
                  value="", unit="",
                  consolidated=True,
+                 context="", member="",
                  period=None, period_start=None,
                  label="", ground=""):
         super().__init__()
@@ -14,6 +15,8 @@ class EDINETValue(BaseValue):
         self.value = value
         self.unit = unit
         self.consolidated = consolidated
+        self.context = context
+        self.member = member
         self.period = period
         self.period_start = period_start
         self.label = label
@@ -44,10 +47,19 @@ class EDINETValue(BaseValue):
         consolidated = True
         period = None
         period_start = None
+        context_text = ""
+        member = ""
 
         if "contextRef" in _element.attrs:
             context_id = _element["contextRef"]
-            if context_id.endswith("NonConsolidatedMember"):
+            context_ids = context_id.split("_", 1)
+            if len(context_ids) > 1:
+                context_text = context_ids[0]
+                member = context_ids[1]
+            else:
+                context_text = context_ids[0]
+
+            if "NonConsolidatedMember" in context_id:
                 consolidated = False
 
             context = reader.xbrl.find("xbrli:context", {"id": context_id})
@@ -61,6 +73,7 @@ class EDINETValue(BaseValue):
             name=name, reference=reference,
             value=value, unit=unit,
             consolidated=consolidated,
+            context=context_text, member=member,
             period=period, period_start=period_start,
             label=label,
             ground=""
@@ -75,6 +88,8 @@ class EDINETValue(BaseValue):
             "value": self.value,
             "unit": self.unit,
             "consolidated": self.consolidated,
+            "context": self.context,
+            "member": self.member,
             "period": self.period,
             "period_start": self.period_start,
             "label": self.label,

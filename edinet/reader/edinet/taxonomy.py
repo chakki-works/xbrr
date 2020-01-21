@@ -19,6 +19,9 @@ class Taxonomy():
         self.root = taxonomy_root
         self.prefix = "http://disclosure.edinet-fsa.go.jp/taxonomy/"
 
+    def __reduce_ex__(self, proto):
+        return type(self), (self.root)
+
     def download(self, year):
         year = str(year)
         expand_dir = self.root.joinpath("taxonomy").joinpath(year)
