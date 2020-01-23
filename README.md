@@ -59,7 +59,7 @@ pdf_path = xbrr.edinet.api.document.get_pdf("S100FGR9", save_dir=Path.cwd())
 Each XBRL includes taxonomy information. If you want to deal with these files, execute the following.
 
 ```py
-xbrl_dir = xbrr.edinet.api.document.get_xbrl_dir("S100FGR9", save_dir=Path.cwd())
+xbrl_dir = xbrr.edinet.api.document.get_xbrl("S100FGR9", save_dir=Path.cwd(), expand_level="dir")
 ```
 
 
@@ -83,4 +83,4 @@ xbrl_dir.extract(xbrr.edinet.aspects.Finance).bs.to_csv("bs.csv", index=False)
 
 Please refer to the supported aspects from the following links.
 
-* EDINET
+* [EDINET](https://github.com/chakki-works/xbrr/blob/master/docs/edinet.md)
