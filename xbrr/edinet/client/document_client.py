@@ -156,3 +156,14 @@ class DocumentClient(BaseClient):
             path = xbrl_path
 
         return path
+
+    def get_xbrl_dir(self, document_id: str,
+                     save_dir: str = "",
+                     file_name: str = "",
+                     lang: str = "ja"):
+        return self.get_xbrl(
+                document_id=document_id,
+                save_dir=save_dir,
+                file_name=file_name,
+                lang=lang,
+                expand_level="dir")
