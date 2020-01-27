@@ -23,6 +23,7 @@ setup(
         "joblib>=0.14.1",
         "lxml>=4.4.2",
         "requests>=2.22.0",
-        "tqdm>=4.41.1"
+        "tqdm>=4.41.1",
+        "pandas>=0.25.3"
     ]
 )
