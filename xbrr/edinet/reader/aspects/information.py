@@ -56,11 +56,12 @@ class Information(BaseParser):
         total = 0
         for p, s in [("男性", "名"), ("女性", "名")]:
             value = self.extract_value("directors", p, s)
-            if p == "男性":
-                numbers["male"] = value
-            elif p == "女性":
-                numbers["female"] = value
-            total += value
+            if isinstance(value, int):
+                if p == "男性":
+                    numbers["male"] = value
+                elif p == "女性":
+                    numbers["female"] = value
+                total += value
 
         numbers["total"] = total
         return numbers, text
