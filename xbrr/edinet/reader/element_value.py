@@ -39,7 +39,7 @@ class ElementValue(BaseElementValue):
             unit = _element["unitRef"]
 
         label = ""
-        if reader.xbrl_dir:
+        if reader.xbrl_dir and label_kind is not None:
             label = reader\
                     .read_by_link(reference)\
                     .label(label_kind, label_verbose)

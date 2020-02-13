@@ -37,6 +37,13 @@ class TestReader(unittest.TestCase):
 
         self.assertTrue(html)
 
+    def test_get_element(self):
+        path = os.path.join(os.path.dirname(__file__),
+                            "../data/xbrl2019.xbrl")
+        xbrl = Reader(path)
+        value = xbrl.find("jpdei_cor:EDINETCodeDEI").value()
+        self.assertEqual(value.value, "E05739")
+
     def test_taxonomy_year(self):
         self.assertEqual(self.reader.taxonomy_year, "2018")
 
