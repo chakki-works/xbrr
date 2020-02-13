@@ -1,9 +1,11 @@
 import os
+import importlib
 from datetime import datetime
 from pathlib import Path
 from bs4 import BeautifulSoup
-import pandas as pd
 from joblib import Parallel, delayed
+if importlib.util.find_spec("pandas") is not None:
+    import pandas as pd
 from xbrr.base.reader.base_reader import BaseReader
 from xbrr.edinet.reader.directory import Directory
 from xbrr.edinet.reader.taxonomy import Taxonomy
