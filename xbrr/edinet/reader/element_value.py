@@ -4,7 +4,7 @@ from xbrr.base.reader.base_element_value import BaseElementValue
 class ElementValue(BaseElementValue):
 
     def __init__(self, name="", reference="",
-                 value="", unit="",
+                 value="", unit="", decimals="",
                  consolidated=True,
                  context="", member="",
                  period=None, period_start=None,
@@ -14,6 +14,7 @@ class ElementValue(BaseElementValue):
         self.reference = reference
         self.value = value
         self.unit = unit
+        self.decimals = decimals
         self.consolidated = consolidated
         self.context = context
         self.member = member
@@ -37,6 +38,10 @@ class ElementValue(BaseElementValue):
         unit = ""
         if "unitRef" in _element.attrs:
             unit = _element["unitRef"]
+
+        decimals = ""
+        if "decimals" in _element.attrs:
+            decimals = _element["decimals"]
 
         label = ""
         if reader.xbrl_dir and label_kind is not None:
@@ -71,7 +76,7 @@ class ElementValue(BaseElementValue):
 
         instance = cls(
             name=name, reference=reference,
-            value=value, unit=unit,
+            value=value, unit=unit, decimals=decimals,
             consolidated=consolidated,
             context=context_text, member=member,
             period=period, period_start=period_start,
@@ -87,6 +92,7 @@ class ElementValue(BaseElementValue):
             "reference": self.reference,
             "value": self.value,
             "unit": self.unit,
+            "decimals": self.decimals,
             "consolidated": self.consolidated,
             "context": self.context,
             "member": self.member,

@@ -41,8 +41,10 @@ class TestReader(unittest.TestCase):
         path = os.path.join(os.path.dirname(__file__),
                             "../data/xbrl2019.xbrl")
         xbrl = Reader(path)
-        value = xbrl.find("jpdei_cor:EDINETCodeDEI").value()
-        self.assertEqual(value.value, "E05739")
+        value = xbrl.find("jpcrp_cor:NumberOfEmployees").value()
+        print(value.to_dict())
+        self.assertEqual(value.value, "19081")
+        self.assertEqual(value.decimals, "0")
 
     def test_taxonomy_year(self):
         self.assertEqual(self.reader.taxonomy_year, "2018")
