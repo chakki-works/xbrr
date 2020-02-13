@@ -44,10 +44,10 @@ class Element(BaseElement):
         else:
             return label.text
 
-    def value(self, kind="", label_verbose=False):
+    def value(self, label_kind="", label_verbose=False):
         return ElementValue.create_from_element(
                 reader=self.reader, element=self,
-                label_kind=kind, label_verbose=label_verbose)
+                label_kind=label_kind, label_verbose=label_verbose)
 
     def _get_label(self, extention, verbose):
         name = self.reference_name
