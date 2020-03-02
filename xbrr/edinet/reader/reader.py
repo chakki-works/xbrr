@@ -120,8 +120,11 @@ class Reader(BaseReader):
 
     def link_to_path(self, link):
         path = link
+        element = ""
+        if "#" in link:
+            path, element = link.split("#")
         if self.taxonomy and path.startswith(self.taxonomy.prefix):
-            path = link.replace(self.taxonomy.prefix, "")
+            path = path.replace(self.taxonomy.prefix, "")
             path = os.path.join(self.taxonomy_path, path)
             if not os.path.exists(path):
                 _path = Path(path)
@@ -136,6 +139,12 @@ class Reader(BaseReader):
 
                 if taxonomy_date and taxonomy_date != xbrl_date:
                     path = path.replace(xbrl_date, taxonomy_date)
+            if os.path.isdir(path):
+                _path = Path(path)
+                xbrl_date = _path.name
+                # element should exist if name does not exist.
+                namespace = "_".join(element.split("_")[:-1])
+                path = _path.joinpath(f"{namespace}_{xbrl_date}.xsd")
         elif self.xbrl_dir:
             path = self.xbrl_dir._find_file("xsd", as_xml=False)
         else:
@@ -147,13 +156,11 @@ class Reader(BaseReader):
         if link.startswith(self.taxonomy.prefix):
             self.taxonomy.download(self.taxonomy_year)
 
-        path = link
         element = ""
+        if "#" in link:
+            element = link.split("#")[-1]
 
-        if "#" in path:
-            path, element = path.split("#")
-
-        path = self.link_to_path(path)
+        path = self.link_to_path(link)
         xml = self._read_from_cache(path)
 
         if element:
