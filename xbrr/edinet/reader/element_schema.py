@@ -34,7 +34,8 @@ class ElementSchema(BaseElementSchema):
 
         if reader.xbrl_dir:
             _def = reader.read_by_link(reference)
-            label = _def.label(label_kind, label_verbose)
+            if label_kind is not None:
+                label = _def.label(label_kind, label_verbose)
             xsd = _def.xsd
             abstract = xsd["abstract"]
             data_type = xsd["type"]

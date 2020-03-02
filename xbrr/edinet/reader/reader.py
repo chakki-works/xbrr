@@ -10,7 +10,6 @@ from xbrr.base.reader.base_reader import BaseReader
 from xbrr.edinet.reader.directory import Directory
 from xbrr.edinet.reader.taxonomy import Taxonomy
 from xbrr.edinet.reader.element import Element
-from xbrr.edinet.reader.element_value import ElementValue
 from xbrr.edinet.reader.element_schema import ElementSchema
 
 
@@ -300,8 +299,7 @@ class Reader(BaseReader):
             name, item = target
             results = []
             for element in reader.find_all(name):
-                value = ElementValue.create_from_element(
-                            reader, element, label_kind, label_verbose).to_dict()
+                value = element.value(label_kind, label_verbose).to_dict()
                 for k in value:
                     if k not in item:
                         item[k] = value[k]
