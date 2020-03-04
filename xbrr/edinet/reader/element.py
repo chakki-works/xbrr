@@ -39,7 +39,9 @@ class Element(BaseElement):
         else:
             label = self._get_label("_lab.xml", verbose)
 
-        if isinstance(label, str):
+        if label is None:
+            return ""
+        elif isinstance(label, str):
             return label
         else:
             return label.text

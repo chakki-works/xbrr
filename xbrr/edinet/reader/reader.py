@@ -272,6 +272,7 @@ class Reader(BaseReader):
 
     def read_value_by_role(self, role_link, link_type="presentation",
                            label_kind="", label_verbose=False):
+        # label is acquired by value
         schemas = self.read_schema_by_role(role_link, link_type,
                                            label_kind, label_verbose)
 
@@ -299,7 +300,8 @@ class Reader(BaseReader):
             name, item = target
             results = []
             for element in reader.find_all(name):
-                value = element.value(label_kind, label_verbose).to_dict()
+                value = element.value(label_kind=None,
+                                      label_verbose=False).to_dict()
                 for k in value:
                     if k not in item:
                         item[k] = value[k]
