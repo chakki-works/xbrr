@@ -61,6 +61,6 @@ class TestFinance(unittest.TestCase):
 
     def test_pl_ifrs(self):
         pl = self.reader.extract(Finance).pl(ifrs=True)
-       #  pl.to_csv("pl_ifrs.csv", index=False, encoding="shift_jis")
+        # pl.to_csv("pl_ifrs.csv", index=False, encoding="shift_jis")
         self.assertTrue(pl is not None)
         self.assertGreater(len(pl), 0)
