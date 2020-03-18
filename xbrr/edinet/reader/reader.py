@@ -328,6 +328,7 @@ class Reader(BaseReader):
                     # label is aquired by schema
                     if not k.endswith("label"):
                         _item[k] = value[k]
+                _item["name"] = element.name
 
                 results.append(_item)
             return results
