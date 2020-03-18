@@ -190,7 +190,10 @@ class Reader(BaseReader):
         else:
             raise Exception(f"Does not support {link_type}.")
 
+        schemas = []
         role = doc.find(link_node, {"xlink:role": role_link})
+        if role is None:
+            return schemas
 
         def get_name(loc):
             return loc["xlink:href"].split("#")[-1]
@@ -235,7 +238,6 @@ class Reader(BaseReader):
             if parent_depth < nodes[name].depth:
                 parent_depth = nodes[name].depth
 
-        schemas = []
         for name in nodes:
             n = nodes[name]
             item = {}
@@ -278,6 +280,9 @@ class Reader(BaseReader):
 
         targets = []
         xbrl_data = []
+        if len(schemas) == 0:
+            return None
+
         for i, row in schemas.iterrows():
             tag_name = row["name"]
 

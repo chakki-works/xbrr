@@ -27,14 +27,24 @@ class Finance(BaseParser):
             role_uri = "http://disclosure.edinet-fsa.go.jp/role/jpigp/rol_ConsolidatedStatementOfFinancialPositionIFRS"
 
         bs = self.reader.read_value_by_role(role_uri, link_type)
-        return self.__filter_duplicate(bs)
+        if bs is None:
+            return None
+        else:
+            return self.__filter_duplicate(bs)
 
     def pl(self, ifrs=False, link_type="calculation"):
         role_uri = "http://disclosure.edinet-fsa.go.jp/role/jppfs/rol_StatementOfIncome"
         if ifrs and self.use_IFRS:
-            role_uri = "http://disclosure.edinet-fsa.go.jp/role/jpigp/rol_ConsolidatedStatementOfComprehensiveIncomeSingleStatementIFRS"
+            role_base = "http://disclosure.edinet-fsa.go.jp/role/jpigp/"
+            role_uri = f"{role_base}rol_ConsolidatedStatementOfComprehensiveIncomeIFRS"
+            if role_uri not in self.reader.roles:
+                role_uri = f"{role_base}rol_ConsolidatedStatementOfComprehensiveIncomeSingleStatementIFRS"
+
         pl = self.reader.read_value_by_role(role_uri, link_type)
-        return self.__filter_duplicate(pl)
+        if pl is None:
+            return None
+        else:
+            return self.__filter_duplicate(pl)
 
     def __filter_duplicate(self, data):
         # Exclude dimension member

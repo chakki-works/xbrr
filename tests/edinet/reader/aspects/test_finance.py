@@ -44,19 +44,23 @@ class TestFinance(unittest.TestCase):
     def test_bs(self):
         bs = self.reader.extract(Finance).bs()
         # bs.to_csv("bs.csv", index=False, encoding="shift_jis")
+        self.assertTrue(bs is not None)
         self.assertGreater(len(bs), 0)
 
     def test_pl(self):
         pl = self.reader.extract(Finance).pl()
         # pl.to_csv("pl.csv", index=False, encoding="shift_jis")
+        self.assertTrue(pl is not None)
         self.assertGreater(len(pl), 0)
 
     def test_bs_ifrs(self):
         bs = self.reader.extract(Finance).bs(ifrs=True, link_type="presentation")
         # bs.to_csv("bs_ifrs.csv", index=False, encoding="shift_jis")
+        self.assertTrue(bs is not None)
         self.assertGreater(len(bs), 0)
 
     def test_pl_ifrs(self):
         pl = self.reader.extract(Finance).pl(ifrs=True)
         # pl.to_csv("pl_ifrs.csv", index=False, encoding="shift_jis")
+        self.assertTrue(pl is not None)
         self.assertGreater(len(pl), 0)
