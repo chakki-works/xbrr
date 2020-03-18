@@ -37,7 +37,7 @@ class Finance(BaseParser):
         if ifrs and self.use_IFRS:
             role_base = "http://disclosure.edinet-fsa.go.jp/role/jpigp/"
             role_uri = f"{role_base}rol_ConsolidatedStatementOfComprehensiveIncomeIFRS"
-            if role_uri not in self.reader.roles:
+            if not self.reader.has_role_in_link(role_uri, link_type):
                 role_uri = f"{role_base}rol_ConsolidatedStatementOfComprehensiveIncomeSingleStatementIFRS"
 
         pl = self.reader.read_value_by_role(role_uri, link_type)

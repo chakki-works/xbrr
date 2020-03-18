@@ -171,6 +171,20 @@ class Reader(BaseReader):
 
         return xml
 
+    def has_role_in_link(self, role_link, link_type):
+        if link_type == "presentation":
+            doc = self.xbrl_dir.pre
+        elif link_type == "calculation":
+            doc = self.xbrl_dir.cal
+        else:
+            return False
+
+        role = doc.find("link:roleRef", {"roleURI": role_link})
+        if role is not None:
+            return True
+        else:
+            return False
+
     def read_schema_by_role(self, role_link, link_type="presentation",
                             label_kind="", label_verbose=False):
         if self.xbrl_dir is None:
