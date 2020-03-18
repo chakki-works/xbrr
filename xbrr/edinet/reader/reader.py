@@ -325,7 +325,9 @@ class Reader(BaseReader):
                 for k in item:
                     _item[k] = item[k]
                 for k in value:
-                    _item[k] = value[k]
+                    # label is aquired by schema
+                    if not k.endswith("label"):
+                        _item[k] = value[k]
 
                 results.append(_item)
             return results
