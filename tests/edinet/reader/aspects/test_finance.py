@@ -12,7 +12,7 @@ class TestFinance(unittest.TestCase):
     def setUpClass(cls):
         _dir = os.path.join(os.path.dirname(__file__), "../../data")
         client = DocumentClient()
-        file_path = client.get_xbrl("S100G2KL", save_dir=_dir,
+        file_path = client.get_xbrl("S100G6IU", save_dir=_dir,
                                     expand_level="dir")
         cls.reader = Reader(file_path)
 

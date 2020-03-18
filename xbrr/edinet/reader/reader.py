@@ -288,7 +288,7 @@ class Reader(BaseReader):
 
     def read_value_by_role(self, role_link, link_type="presentation",
                            label_kind="", label_verbose=False):
-        # label is acquired by value
+
         schemas = self.read_schema_by_role(role_link, link_type,
                                            label_kind, label_verbose)
 
@@ -321,11 +321,14 @@ class Reader(BaseReader):
             for element in reader.find_all(name):
                 value = element.value(label_kind=None,
                                       label_verbose=False).to_dict()
+                _item = {}
                 for k in value:
-                    if k not in item:
-                        item[k] = value[k]
+                    if k in item:
+                        _item[k] = item[k]
+                    else:
+                        _item[k] = value[k]
 
-                results.append(item)
+                results.append(_item)
             return results
 
         results = Parallel(n_jobs=-1)(delayed(read_value)(
