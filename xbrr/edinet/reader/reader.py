@@ -322,11 +322,10 @@ class Reader(BaseReader):
                 value = element.value(label_kind=None,
                                       label_verbose=False).to_dict()
                 _item = {}
+                for k in item:
+                    _item[k] = item[k]
                 for k in value:
-                    if k in item:
-                        _item[k] = item[k]
-                    else:
-                        _item[k] = value[k]
+                    _item[k] = value[k]
 
                 results.append(_item)
             return results
