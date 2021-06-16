@@ -12,7 +12,9 @@ class Taxonomy():
         "2017": "https://www.fsa.go.jp/search/20170228/1c.zip",
         "2018": "https://www.fsa.go.jp/search/20180228/1c_Taxonomy.zip",
         "2019": "https://www.fsa.go.jp/search/20190228/1c_Taxonomy.zip",
-        "2019_cg_ifrs": "https://www.fsa.go.jp/search/20180316/1c_Taxonomy.zip"
+        "2019_cg_ifrs": "https://www.fsa.go.jp/search/20180316/1c_Taxonomy.zip",
+        "2020": "https://www.fsa.go.jp/search/20191101/1c_Taxonomy.zip",
+        "2021": "https://www.fsa.go.jp/search/20201110/1c_Taxonomy.zip"
     }
 
     def __init__(self, taxonomy_root):
